@@ -54,8 +54,10 @@ export const VendorsView: React.FC<VendorsViewProps> = ({ navigate }) => {
     dispatch(fetchVendors());
   }, [dispatch]);
 
-  const setField = (field: keyof typeof emptyForm) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  const setField =
+    (field: keyof typeof emptyForm) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
   const openAddModal = () => {
     setForm(emptyForm);

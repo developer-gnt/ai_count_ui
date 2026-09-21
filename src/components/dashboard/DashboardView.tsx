@@ -662,6 +662,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ navigate }) => {
                           description: tx.description,
                           type: 'Receipt',
                           partyName: tx.description,
+                          partyType: 'Ledger',
                           amount: tx.amount,
                           taxableAmount: tx.amount,
                           gstAmount: 0,

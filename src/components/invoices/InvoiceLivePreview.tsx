@@ -31,7 +31,8 @@ export const InvoiceLivePreview: React.FC<InvoiceLivePreviewProps> = ({
   onOpenTemplateSelector,
   onSaveAndGenerate,
 }) => {
-  const invoiceData: InvoiceFormData = formData || data || INVOICE_TEMPLATES[0] && {
+  const invoiceData: InvoiceFormData = formData || data || {
+    templateId: 'classic',
     business: {
       name: 'ACME INDUSTRIES PVT LTD',
       tradeName: 'ACME Precision Engineering',
@@ -74,9 +75,12 @@ export const InvoiceLivePreview: React.FC<InvoiceLivePreviewProps> = ({
       isInterstate: true,
     },
     items: [],
+    additionalDiscount: 0,
+    shippingCharges: 0,
     notes: 'Thank you for your business!',
     termsAndConditions: '1. Goods once sold will not be taken back.\n2. Interest @ 18% p.a. will be charged for delayed payments.',
-    templateId: 'classic',
+    authorizedSignatory: 'A. Mehta',
+    signatoryTitle: 'Accounts Manager',
   };
 
   const [zoomLevel, setZoomLevel] = useState<number>(100);
