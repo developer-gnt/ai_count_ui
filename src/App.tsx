@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AccountingProvider, useAccounting } from './context/AccountingContext';
 import { useAppSelector } from './app/hooks';
 import { LandingPage } from './components/public/LandingPage';
@@ -37,10 +37,11 @@ import { UsersView } from './components/admin/UsersView';
 const AppContent: React.FC = () => {
   const { currentOrg } = useAccounting();
   const { isAuthenticated, isInitializing } = useAppSelector((state) => state.auth);
+  const organizationState = useAppSelector((state) => state.organizations);
 
   const [currentRoute, setCurrentRoute] = useState<string>(() => {
     const pathname = window.location.pathname;
-    return pathname === '/reset-password' ? pathname : '/dashboard';
+    return pathname && pathname !== '/' ? pathname : '/dashboard';
   });
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
@@ -50,10 +51,19 @@ const AppContent: React.FC = () => {
   // Navigation Handler
   const navigate = (route: string) => {
     setCurrentRoute(route);
+    if (window.location.pathname !== route) {
+      window.history.pushState({}, '', route);
+    }
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentRoute(window.location.pathname || '/dashboard');
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
   if (isInitializing) {
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-xs text-neutral-500 font-mono">
@@ -80,11 +90,35 @@ const AppContent: React.FC = () => {
     return <LandingPage navigate={navigate} />;
   }
 
-  // If user is authenticated but has no active organization or explicitly creating new business, show onboarding wizard
-  if (!currentOrg || currentRoute === '/onboarding' || currentRoute === '/create-organization' || currentRoute === '/new-business') {
+  const organizationIsInitializing =
+    isAuthenticated &&
+    (organizationState.status === 'idle' ||
+      organizationState.status === 'loading' ||
+      organizationState.currentStatus === 'loading');
+  if (organizationIsInitializing) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-xs text-neutral-500 font-mono">
+        Loading your organization...
+      </div>
+    );
+  }
+  if (isAuthenticated && organizationState.status === 'failed') {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center gap-3 px-6 text-center">
+        <p className="text-sm font-semibold text-neutral-900">Unable to load your organization</p>
+        <p className="max-w-md text-xs text-neutral-500">{organizationState.error?.message || 'Please refresh and try again.'}</p>
+        <button type="button" onClick={() => window.location.reload()} className="px-3 py-1.5 bg-neutral-950 text-white rounded-xs text-xs font-mono">Retry</button>
+      </div>
+    );
+  }
+  // Onboarding is valid only after the backend confirms that no organization exists.
+  if (isAuthenticated && organizationState.status === 'succeeded' && organizationState.items.length === 0) {
     return <CreateOrganizationPage navigate={navigate} />;
   }
+  if (!currentOrg || currentRoute === '/onboarding' || currentRoute === '/create-organization' || currentRoute === '/new-business') {
+    return <CreateOrganizationPage navigate={navigate} />;
 
+  }
   // Render view based on route
   const renderCurrentView = () => {
     switch (currentRoute) {
@@ -198,3 +232,5 @@ export default function App() {
     </AccountingProvider>
   );
 }
+
+

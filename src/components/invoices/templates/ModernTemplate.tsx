@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { InvoiceFormData, InvoiceCalculations } from '../types';
 import { formatINR, formatDate } from '../../../utils/formatters';
 import { QrCode, CheckCircle2, Shield, ArrowUpRight } from 'lucide-react';
@@ -13,7 +13,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, calculations }) 
   const isInterstate = metadata.isInterstate;
 
   return (
-    <div className="bg-white text-neutral-900 text-[11px] leading-relaxed p-6 sm:p-9 font-sans shadow-md border border-neutral-200 max-w-4xl mx-auto print:p-0 print:border-none print:shadow-none min-h-[980px] flex flex-col justify-between rounded-xs">
+    <div className="invoice-document bg-white text-neutral-900 text-[11px] leading-relaxed p-6 sm:p-9 font-sans shadow-md border border-neutral-200 max-w-4xl mx-auto print:p-0 print:border-none print:shadow-none min-h-[980px] flex flex-col justify-between rounded-xs">
       <div>
         {/* Modern Charcoal Header Bar */}
         <div className="bg-neutral-950 text-white p-6 rounded-xs mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -28,7 +28,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, calculations }) 
                 </h1>
               </div>
               <p className="text-neutral-400 text-xs font-mono">
-                GSTIN: <span className="text-neutral-200">{business.gstin}</span> • PAN: {business.pan}
+                GSTIN: <span className="text-neutral-200">{business.gstin}</span> â€¢ PAN: {business.pan}
               </p>
             </div>
           </div>
@@ -77,7 +77,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, calculations }) 
               <p>{business.address}</p>
               <p>{business.city}, {business.state} - {business.pincode}</p>
               <p className="font-mono text-[10.5px] pt-1">
-                Email: {business.email} • Ph: {business.phone}
+                Email: {business.email} â€¢ Ph: {business.phone}
               </p>
             </div>
           </div>
@@ -95,7 +95,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, calculations }) 
               <p>{customer.billingAddress}</p>
               <p>{customer.city}, {customer.state} {customer.pincode ? `- ${customer.pincode}` : ''}</p>
               <p className="font-mono text-[10.5px] pt-1 font-semibold text-neutral-900">
-                GSTIN: {customer.gstin || 'UNREGISTERED'} {customer.pan ? `• PAN: ${customer.pan}` : ''}
+                GSTIN: {customer.gstin || 'UNREGISTERED'} {customer.pan ? `â€¢ PAN: ${customer.pan}` : ''}
               </p>
             </div>
           </div>
@@ -286,3 +286,5 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, calculations }) 
     </div>
   );
 };
+
+

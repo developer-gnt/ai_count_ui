@@ -1,9 +1,6 @@
-// Mirrors ai-accounting-app-be/src/modules/payments (payment.entity.ts,
+﻿// Mirrors ai-accounting-app-be/src/modules/payments (payment.entity.ts,
 // payment-allocation.entity.ts, dto/create-payment.dto.ts).
-// NOTE: the backend controller is @Controller('api/v1/payments') while the
-// app also applies setGlobalPrefix('api/v1') — the real served route is
-// /api/v1/api/v1/payments (see swagger.json). The apiClient baseURL is
-// '/api/v1', so service paths below include the extra 'api/v1' segment.
+// NOTE: the payments route is unresolved in the active runtime; both candidate paths returned 404.
 export enum PaymentMethod {
   BANK_TRANSFER = 'BANK_TRANSFER',
   CASH = 'CASH',
@@ -60,3 +57,6 @@ export interface CreatePaymentDto {
   referenceNumber?: string;
   allocations: PaymentAllocationDto[];
 }
+
+
+

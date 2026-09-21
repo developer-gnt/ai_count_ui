@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { InvoiceFormData, InvoiceCalculations } from '../types';
 import { formatINR, formatDate } from '../../../utils/formatters';
 import { Building2, ShieldCheck, QrCode } from 'lucide-react';
@@ -13,13 +13,13 @@ export const ClassicTemplate: React.FC<TemplateProps> = ({ data, calculations })
   const isInterstate = metadata.isInterstate;
 
   return (
-    <div className="bg-white text-neutral-900 text-[11px] leading-relaxed p-6 sm:p-8 font-sans border border-neutral-300 shadow-xs max-w-4xl mx-auto print:p-0 print:border-none print:shadow-none min-h-[980px] flex flex-col justify-between">
+    <div className="invoice-document bg-white text-neutral-900 text-[11px] leading-relaxed p-6 sm:p-8 font-sans border border-neutral-300 shadow-xs max-w-4xl mx-auto print:p-0 print:border-none print:shadow-none min-h-[980px] flex flex-col justify-between">
       <div>
         {/* Top Title Banner */}
         <div className="border border-neutral-900 text-center py-1.5 bg-neutral-100 font-bold uppercase tracking-widest text-xs font-mono mb-2">
           TAX INVOICE
           <span className="text-[9px] font-normal tracking-normal text-neutral-600 block">
-            (Issued under Section 31 of the CGST Act, 2017 • Original for Recipient)
+            (Issued under Section 31 of the CGST Act, 2017 â€¢ Original for Recipient)
           </span>
         </div>
 
@@ -153,11 +153,11 @@ export const ClassicTemplate: React.FC<TemplateProps> = ({ data, calculations })
                 <th className="p-1.5 border-r border-neutral-300 text-center w-16">HSN/SAC</th>
                 <th className="p-1.5 border-r border-neutral-300 text-right w-12">Qty</th>
                 <th className="p-1.5 border-r border-neutral-300 text-center w-12">Unit</th>
-                <th className="p-1.5 border-r border-neutral-300 text-right w-20">Rate (₹)</th>
+                <th className="p-1.5 border-r border-neutral-300 text-right w-20">Rate (â‚¹)</th>
                 <th className="p-1.5 border-r border-neutral-300 text-right w-14">Disc %</th>
                 <th className="p-1.5 border-r border-neutral-300 text-right w-20">Taxable Val</th>
                 <th className="p-1.5 border-r border-neutral-300 text-center w-12">GST %</th>
-                <th className="p-1.5 text-right w-24">Total (₹)</th>
+                <th className="p-1.5 text-right w-24">Total (â‚¹)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-200 font-mono">
@@ -390,3 +390,4 @@ export const ClassicTemplate: React.FC<TemplateProps> = ({ data, calculations })
     </div>
   );
 };
+

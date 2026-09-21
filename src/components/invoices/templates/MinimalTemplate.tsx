@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { InvoiceFormData, InvoiceCalculations } from '../types';
 import { formatINR, formatDate } from '../../../utils/formatters';
 
@@ -12,7 +12,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ data, calculations })
   const isInterstate = metadata.isInterstate;
 
   return (
-    <div className="bg-white text-neutral-900 text-[11px] leading-relaxed p-6 sm:p-10 font-sans max-w-4xl mx-auto print:p-0 print:border-none print:shadow-none min-h-[980px] flex flex-col justify-between">
+    <div className="invoice-document bg-white text-neutral-900 text-[11px] leading-relaxed p-6 sm:p-10 font-sans max-w-4xl mx-auto print:p-0 print:border-none print:shadow-none min-h-[980px] flex flex-col justify-between">
       <div>
         {/* Minimal Swiss Top Navigation Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-baseline border-b border-neutral-900 pb-4 mb-8">
@@ -206,3 +206,4 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ data, calculations })
     </div>
   );
 };
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   InvoiceFormData,
   InvoiceTemplateId,
@@ -120,7 +120,7 @@ export const InvoiceCreationFlow: React.FC<InvoiceCreationFlowProps> = ({
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [saveError, setSaveError] = useState<string>('');
 
-  // Success modal state — the invoice returned by the backend (a DRAFT with a
+  // Success modal state â€” the invoice returned by the backend (a DRAFT with a
   // server-assigned id; the real invoice number is generated at finalize)
   const [generatedInvoice, setGeneratedInvoice] = useState<{
     id: string;
@@ -163,7 +163,7 @@ export const InvoiceCreationFlow: React.FC<InvoiceCreationFlowProps> = ({
     setShowTemplateModal(false);
   };
 
-  // Handle save & generate invoice — dispatches POST /invoices through the
+  // Handle save & generate invoice â€” dispatches POST /invoices through the
   // invoicesSlice thunk. The backend recomputes all totals, stores the draft
   // with status DRAFT, and assigns the real invoice number at finalize.
   const handleGenerateInvoice = async () => {
@@ -176,7 +176,7 @@ export const InvoiceCreationFlow: React.FC<InvoiceCreationFlowProps> = ({
       : '';
     if (!customerId) {
       setSaveError(
-        'Select a registered customer before saving — the ledger requires a customer account. Pick one in the Customer section of the form.',
+        'Select a registered customer before saving â€” the ledger requires a customer account. Pick one in the Customer section of the form.',
       );
       return;
     }
@@ -262,7 +262,7 @@ export const InvoiceCreationFlow: React.FC<InvoiceCreationFlowProps> = ({
                 <span className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-400">
                   New Tax Invoice
                 </span>
-                <span className="text-neutral-300">•</span>
+                <span className="text-neutral-300">â€¢</span>
                 <span className="text-xs font-mono font-semibold text-neutral-800 flex items-center gap-1">
                   <Building2 size={13} className="text-neutral-600" />
                   {currentOrg?.name || 'ACME INDUSTRIES PVT LTD'}
@@ -277,7 +277,7 @@ export const InvoiceCreationFlow: React.FC<InvoiceCreationFlowProps> = ({
               onClick={() => setCurrentStep('editor')}
               className="px-3 py-1.5 bg-neutral-950 text-white hover:bg-neutral-800 text-xs font-mono font-semibold rounded-xs transition-colors"
             >
-              Skip to Editor →
+              Skip to Editor â†’
             </button>
           </div>
         </header>
@@ -327,7 +327,7 @@ export const InvoiceCreationFlow: React.FC<InvoiceCreationFlowProps> = ({
             </div>
             <div className="text-[11px] text-neutral-500 font-mono flex items-center gap-2">
               <span>Template: <strong className="text-neutral-900">{selectedTemplateMeta.number} ({selectedTemplateMeta.name})</strong></span>
-              <span>•</span>
+              <span>â€¢</span>
               <span>Invoice No. is generated when the draft is finalized</span>
             </div>
           </div>
@@ -462,7 +462,7 @@ export const InvoiceCreationFlow: React.FC<InvoiceCreationFlowProps> = ({
       <main className="flex-1 flex overflow-hidden">
         {/* LEFT PANE: Form Controls & Calculations */}
         <div
-          className={`w-full ${
+          className={`w-full min-w-0 ${
             viewMode === 'split' ? 'lg:w-[50%]' : viewMode === 'editor-only' ? 'w-full' : 'hidden'
           } ${
             mobileTab === 'editor' ? 'block' : 'hidden lg:block'
@@ -478,13 +478,13 @@ export const InvoiceCreationFlow: React.FC<InvoiceCreationFlowProps> = ({
 
         {/* RIGHT PANE: Real-time Live Document Render */}
         <div
-          className={`w-full ${
+          className={`w-full min-w-0 ${
             viewMode === 'split' ? 'lg:w-[50%]' : viewMode === 'preview-only' ? 'w-full' : 'hidden'
           } ${
             mobileTab === 'preview' ? 'block' : 'hidden lg:block'
           } bg-neutral-200/70 overflow-y-auto p-4 sm:p-6 flex justify-center`}
         >
-          <div className="w-full max-w-3xl">
+          <div className="w-full min-w-0 max-w-3xl">
             <InvoiceLivePreview
               formData={formData}
               data={formData}
@@ -540,7 +540,7 @@ export const InvoiceCreationFlow: React.FC<InvoiceCreationFlowProps> = ({
                 Invoice Draft Saved to Ledger!
               </h3>
               <p className="text-xs text-neutral-500 mt-1 font-mono">
-                {generatedInvoice.invoiceNumber} • {generatedInvoice.customerName}
+                {generatedInvoice.invoiceNumber} â€¢ {generatedInvoice.customerName}
               </p>
             </div>
 
@@ -558,7 +558,7 @@ export const InvoiceCreationFlow: React.FC<InvoiceCreationFlowProps> = ({
                 <span className="text-amber-700 font-bold">DRAFT (unissued)</span>
               </div>
               <p className="text-[11px] text-neutral-500 pt-1 border-t border-neutral-200">
-                Open the invoice in Sales and press <strong>Finalize &amp; Issue</strong> — that
+                Open the invoice in Sales and press <strong>Finalize &amp; Issue</strong> â€” that
                 generates the official invoice number and posts the double-entry journal.
               </p>
             </div>
@@ -585,7 +585,7 @@ export const InvoiceCreationFlow: React.FC<InvoiceCreationFlowProps> = ({
                 }}
                 className="flex-1 py-2 px-3 bg-neutral-950 hover:bg-neutral-800 text-white rounded-xs text-xs font-mono font-semibold transition-colors"
               >
-                View in Sales →
+                View in Sales â†’
               </button>
             </div>
           </div>
@@ -594,3 +594,4 @@ export const InvoiceCreationFlow: React.FC<InvoiceCreationFlowProps> = ({
     </div>
   );
 };
+

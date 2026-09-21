@@ -1,4 +1,4 @@
-import { apiClient } from '../lib/axiosInstance';
+﻿import { apiClient } from '../lib/axiosInstance';
 import { unwrapApiResponse } from './response';
 import type {
   Invoice,
@@ -7,38 +7,38 @@ import type {
   DeleteInvoiceResponse,
 } from './invoicesTypes';
 
-// Route note: the backend InvoicesController declares @Controller('api/v1/
-// invoices') while main.ts also applies setGlobalPrefix('api/v1'), so the
-// actually served route is /api/v1/api/v1/invoices (the Swagger docs show the
-// doubled path too). The apiClient baseURL is '/api/v1', so the service path
-// must repeat 'api/v1' to match the browser-verified URL.
+// Route note: the active backend exposes this controller under the single global /api/v1 prefix.
+// The shared apiClient already supplies /api/v1, so service paths remain relative.
 export const invoicesApi = {
   async create(payload: CreateInvoiceDto): Promise<Invoice> {
-    const response = await apiClient.post('/api/v1/invoices', payload);
+    const response = await apiClient.post('/invoices', payload);
     return unwrapApiResponse<Invoice>(response.data);
   },
   async list(): Promise<Invoice[]> {
-    const response = await apiClient.get('/api/v1/invoices');
+    const response = await apiClient.get('/invoices');
     return unwrapApiResponse<Invoice[]>(response.data);
   },
   async get(id: string): Promise<Invoice> {
-    const response = await apiClient.get(`/api/v1/invoices/${id}`);
+    const response = await apiClient.get(`/invoices/${id}`);
     return unwrapApiResponse<Invoice>(response.data);
   },
   async update(id: string, payload: UpdateInvoiceDto): Promise<Invoice> {
-    const response = await apiClient.patch(`/api/v1/invoices/${id}`, payload);
+    const response = await apiClient.patch(`/invoices/${id}`, payload);
     return unwrapApiResponse<Invoice>(response.data);
   },
   async remove(id: string): Promise<DeleteInvoiceResponse> {
-    const response = await apiClient.delete(`/api/v1/invoices/${id}`);
+    const response = await apiClient.delete(`/invoices/${id}`);
     return unwrapApiResponse<DeleteInvoiceResponse>(response.data);
   },
   async finalize(id: string): Promise<Invoice> {
-    const response = await apiClient.post(`/api/v1/invoices/${id}/finalize`);
+    const response = await apiClient.post(`/invoices/${id}/finalize`);
     return unwrapApiResponse<Invoice>(response.data);
   },
   async cancel(id: string): Promise<Invoice> {
-    const response = await apiClient.post(`/api/v1/invoices/${id}/cancel`);
+    const response = await apiClient.post(`/invoices/${id}/cancel`);
     return unwrapApiResponse<Invoice>(response.data);
   },
 };
+
+
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import {
   Plus,
   Search,
@@ -73,7 +73,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [paySuccess, setPaySuccess] = useState('');
 
-  // Record-payment modal state (POST /api/v1/api/v1/payments + optional post)
+  // Record-payment modal state (POST payments route + optional post)
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [payAmount, setPayAmount] = useState('');
   const [payDate, setPayDate] = useState(new Date().toISOString().slice(0, 10));
@@ -92,7 +92,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
     dispatch(fetchInvoices());
   }, [dispatch]);
 
-  // "View invoice" → GET /invoices/:id (the only endpoint that returns line
+  // "View invoice" â†’ GET /invoices/:id (the only endpoint that returns line
   // items; the list endpoint omits them). The fulfilled case upserts into the
   // list, which re-renders the drawer with fresh items/status.
   useEffect(() => {
@@ -134,7 +134,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
     });
   };
 
-  // PAYMENTS — create (POST /payments) and immediately post (POST /payments/{id}/post)
+  // PAYMENTS â€” create (POST /payments) and immediately post (POST /payments/{id}/post)
   // so the receivable settles and the invoice status updates server-side.
   const openPaymentModal = (inv: Invoice) => {
     setPayAmount(String(inv.totalAmount));
@@ -167,7 +167,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
 
       if (alsoPost) {
         await dispatch(postPayment(created.id)).unwrap();
-        // Payment posted → invoice status changed server-side (PAID /
+        // Payment posted â†’ invoice status changed server-side (PAID /
         // PARTIALLY_PAID); refresh it so the list reflects the ledger.
         dispatch(fetchInvoiceById(inv.id));
         setPaySuccess(`Payment ${created.paymentNumber} posted.`);
@@ -182,7 +182,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
     }
   };
 
-  // VOID — only POSTED payments can be voided (backend rule). The invoice's
+  // VOID â€” only POSTED payments can be voided (backend rule). The invoice's
   // status is recalculated server-side (back to FINALIZED/PARTIALLY_PAID), so
   // refresh it from the ledger afterwards.
   const handleVoidPayment = (inv: Invoice, paymentId: string, paymentNumber: string) => {
@@ -194,7 +194,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
     });
   };
 
-  // Metrics — computed from backend lifecycle statuses.
+  // Metrics â€” computed from backend lifecycle statuses.
   const billable = invoices.filter((i) => i.apiStatus !== 'CANCELLED');
   const totalSales = billable.reduce((sum, inv) => sum + inv.totalAmount, 0);
   const paidSales = invoices
@@ -449,7 +449,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
               <div>
                 <h3 className="text-base font-bold text-slate-950 tracking-tight">Record Customer Payment</h3>
                 <p className="text-xs text-slate-500 font-mono">
-                  {selectedInvoice.invoiceNumber} • {selectedInvoice.customerName}
+                  {selectedInvoice.invoiceNumber} â€¢ {selectedInvoice.customerName}
                 </p>
               </div>
               <button
@@ -462,7 +462,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
             <div className="p-6 space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">Amount (₹) *</label>
+                  <label className="block font-medium text-slate-700 mb-1">Amount (â‚¹) *</label>
                   <input
                     type="number"
                     min="0.01"
@@ -701,7 +701,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
                   <InvoiceRenderer data={drawerFormData} calculations={drawerCalculations} />
                 </div>
 
-                {/* Drawer Footer Actions — backend lifecycle operations */}
+                {/* Drawer Footer Actions â€” backend lifecycle operations */}
                 <div className="p-4 border-t border-neutral-200 bg-white space-y-2">
                   {actionError && (
                     <div className="bg-red-50 border border-red-200 text-red-800 rounded-xs px-3 py-2 text-xs flex items-center gap-2">
@@ -748,7 +748,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
                         }}
                         disabled={busyAction !== null}
                         className="px-3 py-1.5 bg-white disabled:opacity-50 border border-neutral-300 text-neutral-800 hover:bg-neutral-100 text-xs font-medium rounded-xs font-mono flex items-center gap-1.5"
-                        title="PATCH /invoices/:id — draft notes (full item edits open the editor flow)"
+                        title="PATCH /invoices/:id â€” draft notes (full item edits open the editor flow)"
                       >
                         {busyAction === 'Update' ? <Loader2 size={13} className="animate-spin" /> : <FileText size={13} />}
                         <span>Edit Notes</span>
@@ -809,7 +809,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
                           }}
                           disabled={busyAction !== null}
                           className="px-3 py-1.5 bg-white disabled:opacity-50 border border-amber-300 text-amber-800 hover:bg-amber-50 text-xs font-medium rounded-xs font-mono flex items-center gap-1.5"
-                          title="Void a posted payment (reverses its journal entry) — limited to payments created in this session"
+                          title="Void a posted payment (reverses its journal entry) â€” limited to payments created in this session"
                         >
                           {busyAction === 'Void' ? <Loader2 size={13} className="animate-spin" /> : <Ban size={13} />}
                           <span>Void Payment</span>
@@ -817,7 +817,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
                       )}
                       {isCancelled && (
                         <span className="text-[11px] font-mono text-slate-500 flex items-center gap-1.5">
-                          <Ban size={13} /> Cancelled — journal entry reversed
+                          <Ban size={13} /> Cancelled â€” journal entry reversed
                         </span>
                       )}
                     </div>
@@ -837,3 +837,5 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
     </div>
   );
 };
+
+

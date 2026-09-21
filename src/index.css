@@ -86,3 +86,12 @@
 }
 
 
+
+/* Invoice workspace safeguards */
+.invoice-workspace { width: 100%; max-width: 100%; min-width: 0; min-height: 0; overflow-x: auto; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.invoice-document-shell { width: 900px; min-width: 900px; max-width: none; flex: 0 0 900px; }
+.invoice-document, .invoice-document * { min-width: 0; }
+.invoice-document { width: 100%; max-width: none; overflow-wrap: anywhere; word-break: break-word; white-space: normal; }
+.invoice-document th, .invoice-document td { overflow-wrap: anywhere; word-break: break-word; white-space: normal; }
+.invoice-document .whitespace-nowrap { white-space: normal; }
+@media print { .invoice-workspace { overflow: visible !important; display: block !important; } .invoice-document-shell { zoom: 1 !important; width: 900px !important; min-width: 900px !important; } }

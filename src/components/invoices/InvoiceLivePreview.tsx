@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { InvoiceFormData, InvoiceCalculations, InvoiceTemplateId } from './types';
 import { INVOICE_TEMPLATES } from './mockInvoiceData';
 import { InvoiceRenderer } from './templates/InvoiceRenderer';
@@ -98,7 +98,7 @@ export const InvoiceLivePreview: React.FC<InvoiceLivePreviewProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-neutral-100 border border-neutral-200 rounded-xs overflow-hidden shadow-2xs">
+    <div className="flex flex-col h-full min-w-0 bg-neutral-100 border border-neutral-200 rounded-xs overflow-hidden shadow-2xs">
       {/* Top Preview Control Bar */}
       <div className="bg-white border-b border-neutral-200 p-2.5 sm:px-4 flex flex-wrap items-center justify-between gap-2.5 print:hidden">
         {/* Active Template Selector Tabs */}
@@ -173,7 +173,7 @@ export const InvoiceLivePreview: React.FC<InvoiceLivePreviewProps> = ({
           <span className="text-neutral-700 font-medium">
             {activeTemplateMeta.number} ({activeTemplateMeta.name})
           </span>
-          <span className="text-neutral-400">• {activeTemplateMeta.badge}</span>
+          <span className="text-neutral-400">â€¢ {activeTemplateMeta.badge}</span>
         </div>
         <div className="text-neutral-600">
           Grand Total: <strong className="text-neutral-900 font-sans">{(calculations?.grandTotal || 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</strong>
@@ -181,14 +181,14 @@ export const InvoiceLivePreview: React.FC<InvoiceLivePreviewProps> = ({
       </div>
 
       {/* Render Canvas Container */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex justify-center items-start print:p-0 print:overflow-visible">
+      <div className="invoice-workspace flex-1 min-w-0 p-4 sm:p-6 flex justify-start items-start print:p-0 print:overflow-visible">
         <div
           style={{
-            transform: zoomLevel !== 100 ? `scale(${zoomLevel / 100})` : undefined,
-            transformOrigin: 'top center',
-            transition: 'transform 0.15s ease-out',
+            zoom: zoomLevel / 100,
+            
+            transition: 'zoom 0.15s ease-out',
           }}
-          className="w-full max-w-4xl"
+          className="invoice-document-shell shrink-0"
           id="printable-invoice-container"
         >
           <InvoiceRenderer data={invoiceData} calculations={calculations} />
@@ -197,3 +197,4 @@ export const InvoiceLivePreview: React.FC<InvoiceLivePreviewProps> = ({
     </div>
   );
 };
+

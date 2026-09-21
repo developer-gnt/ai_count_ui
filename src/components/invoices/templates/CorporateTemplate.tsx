@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { InvoiceFormData, InvoiceCalculations } from '../types';
 import { formatINR, formatDate } from '../../../utils/formatters';
 import { Award, CheckCheck, Landmark } from 'lucide-react';
@@ -13,7 +13,7 @@ export const CorporateTemplate: React.FC<TemplateProps> = ({ data, calculations 
   const isInterstate = metadata.isInterstate;
 
   return (
-    <div className="bg-white text-neutral-900 text-[11px] leading-relaxed p-6 sm:p-9 font-sans shadow-md border-t-8 border-t-neutral-900 border border-neutral-200 max-w-4xl mx-auto print:p-0 print:border-none print:shadow-none min-h-[980px] flex flex-col justify-between">
+    <div className="invoice-document bg-white text-neutral-900 text-[11px] leading-relaxed p-6 sm:p-9 font-sans shadow-md border-t-8 border-t-neutral-900 border border-neutral-200 max-w-4xl mx-auto print:p-0 print:border-none print:shadow-none min-h-[980px] flex flex-col justify-between">
       <div>
         {/* Executive Header Banner */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b-2 border-neutral-900 gap-4 mb-6">
@@ -29,7 +29,7 @@ export const CorporateTemplate: React.FC<TemplateProps> = ({ data, calculations 
                 {business.tradeName || 'Enterprise Industrial Solutions & Heavy Engineering'}
               </div>
               <div className="text-[10px] text-neutral-500 font-mono mt-0.5">
-                GSTIN: <strong className="text-neutral-800">{business.gstin}</strong> • PAN: {business.pan}
+                GSTIN: <strong className="text-neutral-800">{business.gstin}</strong> â€¢ PAN: {business.pan}
               </div>
             </div>
           </div>
@@ -59,7 +59,7 @@ export const CorporateTemplate: React.FC<TemplateProps> = ({ data, calculations 
               <p className="text-[11px]">{business.address}</p>
               <p className="text-[11px]">{business.city}, {business.state} - {business.pincode}</p>
               <div className="pt-1 text-[10px] font-mono text-neutral-600">
-                Email: {business.email} • Tel: {business.phone}
+                Email: {business.email} â€¢ Tel: {business.phone}
               </div>
             </div>
           </div>
@@ -221,3 +221,5 @@ export const CorporateTemplate: React.FC<TemplateProps> = ({ data, calculations 
     </div>
   );
 };
+
+

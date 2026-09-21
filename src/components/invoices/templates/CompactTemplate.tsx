@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { InvoiceFormData, InvoiceCalculations } from '../types';
 import { formatINR, formatDate } from '../../../utils/formatters';
 
@@ -12,7 +12,7 @@ export const CompactTemplate: React.FC<TemplateProps> = ({ data, calculations })
   const isInterstate = metadata.isInterstate;
 
   return (
-    <div className="bg-white text-neutral-900 text-[10px] leading-tight p-4 sm:p-6 font-mono border border-neutral-400 max-w-4xl mx-auto print:p-0 print:border-none print:shadow-none min-h-[960px] flex flex-col justify-between">
+    <div className="invoice-document bg-white text-neutral-900 text-[10px] leading-tight p-4 sm:p-6 font-mono border border-neutral-400 max-w-4xl mx-auto print:p-0 print:border-none print:shadow-none min-h-[960px] flex flex-col justify-between">
       <div>
         {/* Compact Top Header */}
         <div className="border-b border-neutral-900 pb-2 mb-2 flex justify-between items-start">
@@ -173,3 +173,4 @@ export const CompactTemplate: React.FC<TemplateProps> = ({ data, calculations })
     </div>
   );
 };
+
