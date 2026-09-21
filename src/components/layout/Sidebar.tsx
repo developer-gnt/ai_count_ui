@@ -82,7 +82,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           icon: SearchCode,
           count: pendingReviewCount > 0 ? pendingReviewCount : undefined,
         },
-        { label: 'Document OCR', route: '/ai-assistant/documents', icon: ScanText },
+        // TODO:
+        // OCR / Document Ingestion is temporarily disabled.
+        // Preserve all implementation for future reactivation.
+        // { label: 'Document OCR', route: '/ai-assistant/documents', icon: ScanText },
       ],
     },
     {

@@ -388,6 +388,9 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ navigate }) => {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* TODO:
+          OCR / Document Ingestion is temporarily disabled.
+          Preserve all implementation for future reactivation.
           <button
             onClick={() => {
               openBillModal();
@@ -398,6 +401,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ navigate }) => {
             <ScanLine size={14} className="text-slate-700" />
             <span>Bill Ingestion (OCR)</span>
           </button>
+          */}
           <button
             onClick={openPayModal}
             id="record-vendor-payment-btn"

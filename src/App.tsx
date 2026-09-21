@@ -25,7 +25,10 @@ import { VendorsView } from './components/vendors/VendorsView';
 import { GstView } from './components/gst/GstView';
 import { ReportsView } from './components/reports/ReportsView';
 import { AiAssistantView } from './components/ai/AiAssistantView';
-import { DocumentScannerView } from './components/ai/DocumentScannerView';
+// TODO:
+// OCR / Document Ingestion is temporarily disabled.
+// Preserve all implementation for future reactivation.
+// import { DocumentScannerView } from './components/ai/DocumentScannerView';
 import { ReviewQueueView } from './components/review/ReviewQueueView';
 import { SettingsView } from './components/settings/SettingsView';
 import { AuditLogView } from './components/audit/AuditLogView';
@@ -157,8 +160,11 @@ const AppContent: React.FC = () => {
         return <ReportsView navigate={navigate} />;
       case '/ai-assistant':
         return <AiAssistantView navigate={navigate} />;
-      case '/ai-assistant/documents':
-        return <DocumentScannerView navigate={navigate} />;
+      // TODO:
+      // OCR / Document Ingestion is temporarily disabled.
+      // Preserve all implementation for future reactivation.
+      // case '/ai-assistant/documents':
+      //   return <DocumentScannerView navigate={navigate} />;
       case '/review':
         return <ReviewQueueView navigate={navigate} />;
       case '/settings':
