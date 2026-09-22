@@ -30,10 +30,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
   onClose,
   isInitialStep = false,
 }) => {
-  // TODO:
-  // OCR / Document Ingestion is temporarily disabled.
-  // Preserve all implementation for future reactivation.
-  const [activeTab, setActiveTab] = useState<'scan' | 'custom'>('custom');
+  const [activeTab, setActiveTab] = useState<'scan' | 'custom'>('scan');
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [scanSuccess, setScanSuccess] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -395,10 +392,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
         })}
       </div>
 
-      {/* TODO:
-      OCR / Document Ingestion is temporarily disabled.
-      Preserve all implementation for future reactivation.
-      */}
+      {/* PROMINENT BOTTOM CARD: 📷 Scan your invoice / Use custom template */}
       <div
         id="scan-custom-template-banner"
         className="rounded-xs border-2 border-dashed border-neutral-300 bg-neutral-50/70 p-5 sm:p-6 transition-all hover:border-neutral-400 hover:bg-neutral-50 shadow-2xs"
@@ -411,20 +405,32 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-base text-neutral-950 font-sans">
-                  Use custom template
+                  📷 Scan your invoice / Use custom template
                 </h3>
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-neutral-200 text-neutral-800 rounded-full">
+                  AI OCR Scanner
+                </span>
               </div>
               <p className="text-xs text-neutral-600 mt-0.5 max-w-xl">
-                Choose a branded invoice layout and customise the look to match your business.
+                Have a paper bill, vendor PDF, or purchase order? Scan or upload it to automatically extract customer details, HSN codes, and line item taxes into the editor.
               </p>
             </div>
           </div>
 
-          {/* TODO:
-          OCR / Document Ingestion is temporarily disabled.
-          Preserve all implementation for future reactivation.
-          */}
+          {/* Sub Tab Switcher (Scan OCR vs Custom Template) */}
           <div className="flex items-center bg-white p-1 rounded-xs border border-neutral-200 self-start lg:self-center font-mono text-xs">
+            <button
+              type="button"
+              onClick={() => setActiveTab('scan')}
+              className={`px-3 py-1 rounded-2xs font-semibold flex items-center gap-1.5 transition-colors ${
+                activeTab === 'scan'
+                  ? 'bg-neutral-900 text-white shadow-2xs'
+                  : 'text-neutral-600 hover:text-neutral-900'
+              }`}
+            >
+              <Scan size={13} />
+              <span>Scan Bill (OCR)</span>
+            </button>
             <button
               type="button"
               onClick={() => setActiveTab('custom')}
@@ -439,6 +445,95 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Tab 1: AI Invoice Scanner Dropzone & Demo Bills */}
+        {activeTab === 'scan' && (
+          <div className="space-y-4">
+            {/* Upload Area */}
+            <div className="bg-white border border-neutral-200 rounded-xs p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-full bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-600 shrink-0">
+                  <Upload size={18} />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-neutral-900">
+                    Upload physical bill photo or PDF document
+                  </div>
+                  <div className="text-[11px] text-neutral-500 font-mono">
+                    Supported: PDF, PNG, JPG, JPEG (Max 10MB)
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept=".pdf,image/*"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isScanning}
+                  id="browse-invoice-file-btn"
+                  className="w-full sm:w-auto px-4 py-2 bg-white border border-neutral-300 hover:border-neutral-900 text-neutral-900 rounded-xs text-xs font-semibold font-mono flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                >
+                  <FileText size={14} />
+                  <span>Choose File to Scan</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Scanning Status Alert */}
+            {isScanning && (
+              <div className="p-3 bg-neutral-900 text-white rounded-xs text-xs font-mono flex items-center gap-2 animate-pulse">
+                <RefreshCw size={14} className="animate-spin text-emerald-400" />
+                <span>Scanning document geometry... Performing GST & HSN line item extraction...</span>
+              </div>
+            )}
+
+            {scanSuccess && (
+              <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-xs text-xs font-mono flex items-center gap-2">
+                <ShieldCheck size={16} className="text-emerald-700" />
+                <span>{scanSuccess}</span>
+              </div>
+            )}
+
+            {/* Quick Demo Pre-scanned Bills for 1-Click Testing */}
+            <div className="pt-2">
+              <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-2 flex items-center gap-1.5">
+                <Zap size={13} className="text-amber-600" />
+                <span>Try instant 1-click test scans (Sample Invoices):</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                {sampleScans.map((sample, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleSimulateScan(sample.data, sample.label)}
+                    disabled={isScanning}
+                    className="text-left p-3 bg-white hover:bg-neutral-100 border border-neutral-300 hover:border-neutral-900 rounded-xs transition-all flex items-center justify-between group shadow-2xs"
+                  >
+                    <div>
+                      <div className="text-xs font-bold text-neutral-900 group-hover:text-neutral-950">
+                        {sample.label}
+                      </div>
+                      <div className="text-[10.5px] text-neutral-500 font-mono mt-0.5">
+                        Category: {sample.tag} • Items: {sample.data.items?.length || 2}
+                      </div>
+                    </div>
+                    <span className="text-xs font-mono font-semibold text-neutral-700 group-hover:text-neutral-950 flex items-center gap-1">
+                      <span>Scan Bill</span>
+                      <ArrowRight size={12} />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tab 2: Custom Layout & Brand Presets */}
         {activeTab === 'custom' && (

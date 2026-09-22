@@ -33,50 +33,76 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
 
   if (!isOpen) return null;
 
-  const q = query.toLowerCase().trim();
+  const q = (query || '').toLowerCase().trim();
+
+  const safeIncludes = (val: unknown, term: string): boolean => {
+    if (val === null || val === undefined) return false;
+    return String(val).toLowerCase().includes(term);
+  };
+
+  const safeInvoices = Array.isArray(invoices) ? invoices : [];
+  const safeTransactions = Array.isArray(transactions) ? transactions : [];
+  const safeCustomers = Array.isArray(customers) ? customers : [];
+  const safeVendors = Array.isArray(vendors) ? vendors : [];
+  const safeExpenses = Array.isArray(expenses) ? expenses : [];
 
   const matchedInvoices = q
-    ? invoices.filter(
+    ? safeInvoices.filter(
         (i) =>
-          i.invoiceNumber.toLowerCase().includes(q) ||
-          i.customerName.toLowerCase().includes(q) ||
-          i.customerGstin.toLowerCase().includes(q)
+          i &&
+          (safeIncludes(i.invoiceNumber, q) ||
+            safeIncludes(i.customerName, q) ||
+            safeIncludes(i.customerGstin, q))
       )
     : [];
 
   const matchedTransactions = q
-    ? transactions.filter(
+    ? safeTransactions.filter(
         (t) =>
-          t.description.toLowerCase().includes(q) ||
-          t.partyName.toLowerCase().includes(q) ||
-          t.referenceNo?.toLowerCase().includes(q)
+          t &&
+          (safeIncludes(t.description, q) ||
+            safeIncludes(t.partyName, q) ||
+            safeIncludes(t.referenceNo, q) ||
+            safeIncludes(t.partyGstin, q))
       )
     : [];
 
   const matchedCustomers = q
-    ? customers.filter(
+    ? safeCustomers.filter(
         (c) =>
-          c.name.toLowerCase().includes(q) ||
-          c.gstin.toLowerCase().includes(q) ||
-          c.email.toLowerCase().includes(q)
+          c &&
+          (safeIncludes(c.name, q) ||
+            safeIncludes(c.tradeName, q) ||
+            safeIncludes(c.gstin, q) ||
+            safeIncludes(c.email, q) ||
+            safeIncludes(c.phone, q) ||
+            safeIncludes(c.city, q) ||
+            safeIncludes(c.state, q))
       )
     : [];
 
   const matchedVendors = q
-    ? vendors.filter(
+    ? safeVendors.filter(
         (v) =>
-          v.name.toLowerCase().includes(q) ||
-          v.gstin.toLowerCase().includes(q) ||
-          v.contactPerson.toLowerCase().includes(q)
+          v &&
+          (safeIncludes(v.name, q) ||
+            safeIncludes(v.tradeName, q) ||
+            safeIncludes(v.gstin, q) ||
+            safeIncludes(v.contactPerson, q) ||
+            safeIncludes(v.email, q) ||
+            safeIncludes(v.phone, q) ||
+            safeIncludes(v.city, q))
       )
     : [];
 
   const matchedExpenses = q
-    ? expenses.filter(
+    ? safeExpenses.filter(
         (e) =>
-          e.description.toLowerCase().includes(q) ||
-          e.vendorName.toLowerCase().includes(q) ||
-          e.category.toLowerCase().includes(q)
+          e &&
+          (safeIncludes(e.description, q) ||
+            safeIncludes(e.vendorName, q) ||
+            safeIncludes(e.category, q) ||
+            safeIncludes(e.referenceNo, q))
       )
     : [];
 

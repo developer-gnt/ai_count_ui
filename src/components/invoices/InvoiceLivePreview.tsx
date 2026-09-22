@@ -1,7 +1,8 @@
-﻿import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { InvoiceFormData, InvoiceCalculations, InvoiceTemplateId } from './types';
 import { INVOICE_TEMPLATES } from './mockInvoiceData';
 import { InvoiceRenderer } from './templates/InvoiceRenderer';
+import { formatINR } from '../../utils/formatters';
 import {
   Printer,
   ZoomIn,
@@ -9,192 +10,234 @@ import {
   Maximize2,
   Check,
   Eye,
+  ArrowLeft,
+  Save,
+  CheckCircle2,
+  Loader2,
+  FileCheck,
   Sparkles,
-  Download,
-  Share2,
 } from 'lucide-react';
 
 interface InvoiceLivePreviewProps {
-  formData?: InvoiceFormData;
-  data?: InvoiceFormData;
+  formData: InvoiceFormData;
   calculations: InvoiceCalculations;
-  onSelectTemplate?: (templateId: InvoiceTemplateId) => void;
-  onOpenTemplateSelector?: () => void;
-  onSaveAndGenerate?: () => void;
+  onSelectTemplate: (templateId: InvoiceTemplateId) => void;
+  onBackToEdit: () => void;
+  onSaveDraft: () => Promise<void> | void;
+  onFinalize?: () => Promise<void> | void;
+  isSaving?: boolean;
+  isFinalizing?: boolean;
 }
 
 export const InvoiceLivePreview: React.FC<InvoiceLivePreviewProps> = ({
   formData,
-  data,
   calculations,
   onSelectTemplate,
-  onOpenTemplateSelector,
-  onSaveAndGenerate,
+  onBackToEdit,
+  onSaveDraft,
+  onFinalize,
+  isSaving = false,
+  isFinalizing = false,
 }) => {
-  const invoiceData: InvoiceFormData = formData || data || INVOICE_TEMPLATES[0] && {
-    business: {
-      name: 'ACME INDUSTRIES PVT LTD',
-      tradeName: 'ACME Precision Engineering',
-      gstin: '27AABCA1234F1Z5',
-      pan: 'AABCA1234F',
-      address: 'Plot 42, MIDC Industrial Area, Phase II, Andheri East',
-      city: 'Mumbai',
-      state: 'Maharashtra (27)',
-      pincode: '400093',
-      email: 'billing@acmeind.in',
-      phone: '+91 22 2839 4000',
-      bankName: 'HDFC Bank',
-      accountNumber: '50200012345678',
-      ifscCode: 'HDFC0001234',
-      branch: 'Andheri East Branch, Mumbai',
-      upiId: 'acme@hdfcbank',
-    },
-    customer: {
-      id: 'cust_1',
-      name: 'Quantum Dynamics Ltd',
-      tradeName: 'Quantum Labs',
-      gstin: '29ABCDE1234F1Z5',
-      pan: 'ABCDE1234F',
-      billingAddress: 'Tower 4, Electronic City, Phase 1',
-      shippingAddress: 'Tower 4, Electronic City, Phase 1',
-      city: 'Bengaluru',
-      state: 'Karnataka (29)',
-      pincode: '560100',
-      email: 'ap@quantumdynamics.io',
-      phone: '+91 80 4123 4567',
-      placeOfSupply: 'Karnataka (29)',
-    },
-    metadata: {
-      invoiceNumber: 'INV/2026/0892',
-      invoiceDate: new Date().toISOString().split('T')[0],
-      dueDate: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
-      poNumber: 'PO-2026-9041',
-      paymentTerms: 'Net 30 Days',
-      reverseCharge: false,
-      isInterstate: true,
-    },
-    items: [],
-    notes: 'Thank you for your business!',
-    termsAndConditions: '1. Goods once sold will not be taken back.\n2. Interest @ 18% p.a. will be charged for delayed payments.',
-    templateId: 'classic',
-  };
-
   const [zoomLevel, setZoomLevel] = useState<number>(100);
+  const [isFitToPage, setIsFitToPage] = useState<boolean>(true);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+  const documentShellRef = useRef<HTMLDivElement>(null);
 
   const activeTemplateMeta =
-    INVOICE_TEMPLATES.find((t) => t.id === invoiceData.templateId) ||
+    INVOICE_TEMPLATES.find((t) => t.id === formData.templateId) ||
     INVOICE_TEMPLATES[0];
+
+  // Calculate fit-to-page scale factor dynamically
+  useEffect(() => {
+    if (!isFitToPage) return;
+
+    const computeFitScale = () => {
+      if (previewContainerRef.current) {
+        const containerHeight = previewContainerRef.current.clientHeight - 48; // padding allowance
+        const containerWidth = previewContainerRef.current.clientWidth - 48;
+        const targetA4Height = 1050; // standard rendered A4 height baseline
+        const targetA4Width = 840;
+
+        const scaleH = containerHeight / targetA4Height;
+        const scaleW = containerWidth / targetA4Width;
+        const bestScale = Math.min(scaleH, scaleW, 1.0); // max 100% on huge screens
+        const clampedScale = Math.max(0.45, Math.min(1.0, bestScale));
+        setZoomLevel(Math.round(clampedScale * 100));
+      }
+    };
+
+    computeFitScale();
+    window.addEventListener('resize', computeFitScale);
+    return () => window.removeEventListener('resize', computeFitScale);
+  }, [isFitToPage]);
+
+  const handleManualZoomChange = (delta: number) => {
+    setIsFitToPage(false);
+    setZoomLevel((prev) => Math.max(50, Math.min(150, prev + delta)));
+  };
+
+  const handleResetZoom100 = () => {
+    setIsFitToPage(false);
+    setZoomLevel(100);
+  };
+
+  const handleToggleFitToPage = () => {
+    setIsFitToPage(true);
+  };
 
   const handlePrint = () => {
     window.print();
   };
 
-  const handleTemplateChange = (tplId: InvoiceTemplateId) => {
-    if (onSelectTemplate) {
-      onSelectTemplate(tplId);
-    } else if (onOpenTemplateSelector) {
-      onOpenTemplateSelector();
-    }
-  };
-
   return (
-    <div className="flex flex-col h-full min-w-0 bg-neutral-100 border border-neutral-200 rounded-xs overflow-hidden shadow-2xs">
-      {/* Top Preview Control Bar */}
-      <div className="bg-white border-b border-neutral-200 p-2.5 sm:px-4 flex flex-wrap items-center justify-between gap-2.5 print:hidden">
-        {/* Active Template Selector Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 sm:pb-0 max-w-full">
-          <span className="text-[10px] font-mono font-bold uppercase text-neutral-400 mr-1 hidden sm:inline">
-            Template:
-          </span>
+    <div className="flex flex-col min-h-screen bg-neutral-100 font-sans">
+      {/* Top Preview Navigation Bar */}
+      <header className="sticky top-0 z-30 bg-white border-b border-neutral-200 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-2xs print:hidden">
+        {/* Left: Back to Editing */}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={onBackToEdit}
+            id="preview-back-to-edit-btn"
+            className="px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 border border-neutral-300 text-neutral-800 text-xs font-mono font-semibold rounded-xs flex items-center gap-1.5 transition-colors"
+          >
+            <ArrowLeft size={14} />
+            <span>← Back to Editing</span>
+          </button>
+
+          <div className="hidden sm:block">
+            <span className="text-xs font-mono font-bold uppercase text-neutral-400">
+              Invoice Preview
+            </span>
+            <span className="text-neutral-300 mx-2">•</span>
+            <span className="text-xs font-semibold text-neutral-800 font-mono">
+              {formData.metadata.invoiceNumber || 'DRAFT'} ({formatINR(calculations.grandTotal)})
+            </span>
+          </div>
+        </div>
+
+        {/* Center: Template Switcher Tabs */}
+        <div className="flex items-center gap-1 bg-neutral-100 p-1 rounded-xs border border-neutral-200">
           {INVOICE_TEMPLATES.map((tpl) => {
-            const isActive = invoiceData.templateId === tpl.id;
+            const isActive = formData.templateId === tpl.id;
             return (
               <button
                 key={tpl.id}
                 type="button"
-                onClick={() => handleTemplateChange(tpl.id)}
-                id={`preview-pill-${tpl.id}`}
-                className={`px-2.5 py-1 text-[11px] font-mono rounded-xs transition-all flex items-center gap-1 whitespace-nowrap ${
+                onClick={() => onSelectTemplate(tpl.id)}
+                id={`template-tab-${tpl.id}`}
+                className={`px-2.5 py-1 text-[11px] font-mono rounded-xs transition-all flex items-center gap-1 ${
                   isActive
-                    ? 'bg-neutral-900 text-white font-bold shadow-xs'
-                    : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200 hover:text-neutral-950'
+                    ? 'bg-white text-neutral-950 font-bold shadow-2xs border border-neutral-200'
+                    : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200/60'
                 }`}
               >
-                {isActive && <Check size={11} strokeWidth={3} className="text-emerald-400" />}
+                {isActive && <Check size={11} strokeWidth={3} className="text-emerald-600" />}
                 <span>{tpl.name.split(' ')[0]}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Action Controls: Zoom, Print, Generate */}
+        {/* Right: Zoom Controls + Save / Finalize */}
         <div className="flex items-center gap-2">
-          {/* Zoom controls */}
-          <div className="hidden sm:flex items-center gap-1 bg-neutral-100 p-0.5 rounded-xs border border-neutral-200 font-mono text-[10px]">
+          {/* Zoom Tools */}
+          <div className="flex items-center gap-0.5 bg-neutral-100 p-0.5 rounded-xs border border-neutral-200 font-mono text-[11px]">
             <button
               type="button"
-              onClick={() => setZoomLevel((prev) => Math.max(75, prev - 10))}
-              className="p-1 hover:bg-white rounded-2xs text-neutral-600 hover:text-neutral-900 transition-colors"
+              onClick={() => handleManualZoomChange(-10)}
+              className="p-1 hover:bg-white rounded-2xs text-neutral-700 hover:text-neutral-950"
               title="Zoom out"
             >
-              <ZoomOut size={12} />
+              <ZoomOut size={13} />
             </button>
-            <span className="px-1 text-neutral-700 min-w-[36px] text-center font-medium">
-              {zoomLevel}%
-            </span>
             <button
               type="button"
-              onClick={() => setZoomLevel((prev) => Math.min(125, prev + 10))}
-              className="p-1 hover:bg-white rounded-2xs text-neutral-600 hover:text-neutral-900 transition-colors"
+              onClick={handleResetZoom100}
+              className={`px-1.5 py-0.5 rounded-2xs text-neutral-700 hover:bg-white ${
+                zoomLevel === 100 && !isFitToPage ? 'font-bold bg-white text-neutral-950' : ''
+              }`}
+              title="Actual 100% size"
+            >
+              {zoomLevel}%
+            </button>
+            <button
+              type="button"
+              onClick={() => handleManualZoomChange(10)}
+              className="p-1 hover:bg-white rounded-2xs text-neutral-700 hover:text-neutral-950"
               title="Zoom in"
             >
-              <ZoomIn size={12} />
+              <ZoomIn size={13} />
+            </button>
+            <button
+              type="button"
+              onClick={handleToggleFitToPage}
+              className={`px-2 py-0.5 rounded-2xs text-[10px] uppercase font-semibold flex items-center gap-1 ${
+                isFitToPage
+                  ? 'bg-neutral-900 text-white shadow-2xs'
+                  : 'text-neutral-600 hover:bg-white'
+              }`}
+              title="Scale to fit window"
+            >
+              <Maximize2 size={11} />
+              <span>Fit Page</span>
             </button>
           </div>
 
-          {/* Print / PDF button */}
+          {/* Print / PDF Button */}
           <button
             type="button"
             onClick={handlePrint}
             id="print-invoice-btn"
-            className="px-2.5 py-1 bg-white border border-neutral-300 hover:border-neutral-900 text-neutral-800 text-xs font-mono rounded-xs flex items-center gap-1.5 transition-colors shadow-2xs"
-            title="Print or Save as PDF"
+            className="px-3 py-1.5 bg-white hover:bg-neutral-50 border border-neutral-300 text-neutral-800 text-xs font-mono font-medium rounded-xs flex items-center gap-1.5 transition-colors shadow-2xs"
           >
-            <Printer size={13} />
-            <span>Print / PDF</span>
+            <Printer size={14} />
+            <span className="hidden sm:inline">Print / PDF</span>
+          </button>
+
+          {/* Finalize / Issue Button */}
+          <button
+            type="button"
+            onClick={onSaveDraft}
+            disabled={isSaving || isFinalizing}
+            id="finalize-invoice-btn"
+            className="px-4 py-1.5 bg-neutral-950 hover:bg-neutral-850 disabled:opacity-50 text-white text-xs font-mono font-semibold rounded-xs flex items-center gap-1.5 transition-colors shadow-xs"
+          >
+            {isSaving || isFinalizing ? (
+              <>
+                <Loader2 size={14} className="animate-spin text-white" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <FileCheck size={14} className="text-emerald-400" />
+                <span>Finalize &amp; Save Draft</span>
+              </>
+            )}
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Template Status Bar */}
-      <div className="bg-neutral-50 border-b border-neutral-200 px-4 py-1.5 flex items-center justify-between text-[10px] font-mono text-neutral-500 print:hidden">
-        <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span className="text-neutral-700 font-medium">
-            {activeTemplateMeta.number} ({activeTemplateMeta.name})
-          </span>
-          <span className="text-neutral-400">â€¢ {activeTemplateMeta.badge}</span>
-        </div>
-        <div className="text-neutral-600">
-          Grand Total: <strong className="text-neutral-900 font-sans">{(calculations?.grandTotal || 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</strong>
-        </div>
-      </div>
-
-      {/* Render Canvas Container */}
-      <div className="invoice-workspace flex-1 min-w-0 p-4 sm:p-6 flex justify-start items-start print:p-0 print:overflow-visible">
+      {/* Main A4 Document Workspace (Centered, Non-Cropped, Responsive Scale) */}
+      <main
+        ref={previewContainerRef}
+        className="flex-1 w-full min-h-[calc(100vh-60px)] p-4 sm:p-8 flex justify-center items-start overflow-y-auto print:p-0 print:overflow-visible print:bg-white"
+      >
         <div
+          ref={documentShellRef}
           style={{
-            zoom: zoomLevel / 100,
-            
-            transition: 'zoom 0.15s ease-out',
+            transform: `scale(${zoomLevel / 100})`,
+            transformOrigin: 'top center',
+            transition: 'transform 0.15s ease-out',
+            marginBottom: `${Math.max(20, (1050 * (zoomLevel / 100)) - 800)}px`,
           }}
-          className="invoice-document-shell shrink-0"
+          className="shrink-0 w-full max-w-4xl bg-white shadow-lg border border-neutral-300 rounded-2xs print:shadow-none print:border-none print:transform-none print:m-0"
           id="printable-invoice-container"
         >
-          <InvoiceRenderer data={invoiceData} calculations={calculations} />
+          <InvoiceRenderer data={formData} calculations={calculations} />
         </div>
-      </div>
+      </main>
     </div>
   );
 };
-

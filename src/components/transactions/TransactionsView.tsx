@@ -192,10 +192,10 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({ navigate }) 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
-        tx.description.toLowerCase().includes(q) ||
-        tx.partyName.toLowerCase().includes(q) ||
-        tx.referenceNo?.toLowerCase().includes(q) ||
-        tx.partyGstin?.toLowerCase().includes(q)
+        (tx.description || '').toLowerCase().includes(q) ||
+        (tx.partyName || '').toLowerCase().includes(q) ||
+        (tx.referenceNo || '').toLowerCase().includes(q) ||
+        (tx.partyGstin || '').toLowerCase().includes(q)
       );
     }
     return true;
@@ -360,8 +360,8 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({ navigate }) 
                     if (!searchQuery.trim()) return true;
                     const q = searchQuery.toLowerCase();
                     return (
-                      je.entryNumber.toLowerCase().includes(q) ||
-                      je.description.toLowerCase().includes(q)
+                      (je.entryNumber || '').toLowerCase().includes(q) ||
+                      (je.description || '').toLowerCase().includes(q)
                     );
                   })
                   .map((je) => (

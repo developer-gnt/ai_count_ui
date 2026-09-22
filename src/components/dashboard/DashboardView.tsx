@@ -354,9 +354,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ navigate }) => {
             <CreditCard size={14} className="text-neutral-500" />
             <span>Create Expense</span>
           </button>
-          {/* TODO:
-          OCR / Document Ingestion is temporarily disabled.
-          Preserve all implementation for future reactivation.
           <button
             onClick={() => navigate('/ai-assistant/documents')}
             id="quick-scan-ocr-btn"
@@ -365,7 +362,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ navigate }) => {
             <ScanLine size={14} className="text-neutral-700" />
             <span>Scan Bill (OCR)</span>
           </button>
-          */}
         </div>
       </div>
 

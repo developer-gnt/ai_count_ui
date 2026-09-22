@@ -25,10 +25,7 @@ import { VendorsView } from './components/vendors/VendorsView';
 import { GstView } from './components/gst/GstView';
 import { ReportsView } from './components/reports/ReportsView';
 import { AiAssistantView } from './components/ai/AiAssistantView';
-// TODO:
-// OCR / Document Ingestion is temporarily disabled.
-// Preserve all implementation for future reactivation.
-// import { DocumentScannerView } from './components/ai/DocumentScannerView';
+import { DocumentScannerView } from './components/ai/DocumentScannerView';
 import { ReviewQueueView } from './components/review/ReviewQueueView';
 import { SettingsView } from './components/settings/SettingsView';
 import { AuditLogView } from './components/audit/AuditLogView';
@@ -93,11 +90,13 @@ const AppContent: React.FC = () => {
     return <LandingPage navigate={navigate} />;
   }
 
+  // Only show the blocking full-screen loader during initial application bootstrap
+  // when organizations have not yet been loaded at all (items is empty and status is idle or loading).
+  // Once organizations are in memory, background fetches or tab changes do NOT disrupt the application.
   const organizationIsInitializing =
     isAuthenticated &&
-    (organizationState.status === 'idle' ||
-      organizationState.status === 'loading' ||
-      organizationState.currentStatus === 'loading');
+    organizationState.items.length === 0 &&
+    (organizationState.status === 'idle' || organizationState.status === 'loading');
   if (organizationIsInitializing) {
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-xs text-neutral-500 font-mono">
@@ -105,7 +104,7 @@ const AppContent: React.FC = () => {
       </div>
     );
   }
-  if (isAuthenticated && organizationState.status === 'failed') {
+  if (isAuthenticated && organizationState.status === 'failed' && organizationState.items.length === 0) {
     return (
       <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center gap-3 px-6 text-center">
         <p className="text-sm font-semibold text-neutral-900">Unable to load your organization</p>
@@ -160,11 +159,8 @@ const AppContent: React.FC = () => {
         return <ReportsView navigate={navigate} />;
       case '/ai-assistant':
         return <AiAssistantView navigate={navigate} />;
-      // TODO:
-      // OCR / Document Ingestion is temporarily disabled.
-      // Preserve all implementation for future reactivation.
-      // case '/ai-assistant/documents':
-      //   return <DocumentScannerView navigate={navigate} />;
+      case '/ai-assistant/documents':
+        return <DocumentScannerView navigate={navigate} />;
       case '/review':
         return <ReviewQueueView navigate={navigate} />;
       case '/settings':
@@ -196,9 +192,8 @@ const AppContent: React.FC = () => {
 
       {/* Main Workspace Layout */}
       <div
-        className={`flex-1 flex flex-col min-w-0 transition-[padding] duration-300 ease-in-out motion-reduce:transition-none pl-0 ${
-          sidebarCollapsed ? 'lg:pl-16' : 'lg:pl-64'
-        }`}
+        className={`flex-1 flex flex-col min-w-0 transition-[padding] duration-300 ease-in-out motion-reduce:transition-none pl-0 ${sidebarCollapsed ? 'lg:pl-16' : 'lg:pl-64'
+          }`}
       >
         {/* Top Header Navigation */}
         <TopNav

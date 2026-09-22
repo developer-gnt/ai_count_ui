@@ -11,20 +11,23 @@ import {
   Plus,
   Trash2,
   Info,
+  X,
 } from 'lucide-react';
 import { useAccounting } from '../../context/AccountingContext';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { createBill } from '../../features/purchases/purchasesSlice';
 import { uploadFile } from '../../features/files/filesSlice';
 import { extractBill } from '../../features/ai/aiSlice';
+import { createVendor } from '../../features/vendors/vendorsSlice';
 import { getApiErrorMessage } from '../../utils/apiErrorMessage';
-import { formatINR } from '../../utils/formatters';
+import { formatINR, validateGSTIN } from '../../utils/formatters';
 import type {
   AiExtractionProposal,
   ExtractionWarning,
   FieldConfidence,
 } from '../../api/aiTypes';
 import type { CreatePurchaseBillDto } from '../../api/purchasesTypes';
+import type { CreateVendorDto } from '../../api/vendorsTypes';
 
 interface DocumentScannerViewProps {
   navigate: (route: string) => void;
@@ -146,6 +149,114 @@ export const DocumentScannerView: React.FC<DocumentScannerViewProps> = ({ naviga
   const [selectedVendorId, setSelectedVendorId] = useState('');
   const [warningsAcknowledged, setWarningsAcknowledged] = useState(false);
 
+  // Quick Add Vendor modal state (isolated from OCR pipeline)
+  const [isQuickAddVendorOpen, setIsQuickAddVendorOpen] = useState(false);
+  const [vendorForm, setVendorForm] = useState({
+    name: '',
+    tradeName: '',
+    gstin: '',
+    pan: '',
+    contactPerson: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    paymentTermsDays: '30',
+  });
+  const [vendorFormError, setVendorFormError] = useState('');
+  const [isAddingVendor, setIsAddingVendor] = useState(false);
+
+  const openQuickAddVendor = () => {
+    const rawGstin = (review?.supplierGstin || '').trim().toUpperCase();
+    const panFromGstin = rawGstin.length >= 12 ? rawGstin.slice(2, 12) : '';
+
+    let guessedState = review?.placeOfSupply || '';
+    let guessedCity = '';
+    if (review?.supplierAddress) {
+      const parts = review.supplierAddress.split(',').map((p) => p.trim());
+      if (parts.length >= 2) {
+        guessedCity = parts[parts.length - 2];
+      }
+    }
+
+    setVendorForm({
+      name: review?.supplierName || '',
+      tradeName: '',
+      gstin: rawGstin,
+      pan: panFromGstin,
+      contactPerson: '',
+      email: '',
+      phone: '',
+      address: review?.supplierAddress || '',
+      city: guessedCity,
+      state: guessedState,
+      paymentTermsDays: '30',
+    });
+    setVendorFormError('');
+    setIsQuickAddVendorOpen(true);
+  };
+
+  const handleQuickAddVendorSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!vendorForm.name.trim()) {
+      setVendorFormError('Please provide a vendor / supplier name.');
+      return;
+    }
+    if (vendorForm.gstin.trim() && !validateGSTIN(vendorForm.gstin.trim()).isValid) {
+      setVendorFormError('Invalid GSTIN format (must be 15 characters, e.g. 27AABCA1234F1Z5).');
+      return;
+    }
+    if (!vendorForm.email.trim()) {
+      setVendorFormError('Email is required by the accounting service.');
+      return;
+    }
+    if (!vendorForm.phone.trim()) {
+      setVendorFormError('Phone number is required by the accounting service.');
+      return;
+    }
+    if (!vendorForm.address.trim()) {
+      setVendorFormError('Billing address is required by the accounting service.');
+      return;
+    }
+    if (!vendorForm.city.trim()) {
+      setVendorFormError('City is required by the accounting service.');
+      return;
+    }
+    if (!vendorForm.state.trim()) {
+      setVendorFormError('State is required by the accounting service.');
+      return;
+    }
+
+    setIsAddingVendor(true);
+    setVendorFormError('');
+
+    try {
+      const payload: CreateVendorDto = {
+        name: vendorForm.name.trim(),
+        ...(vendorForm.tradeName.trim() ? { tradeName: vendorForm.tradeName.trim() } : {}),
+        ...(vendorForm.gstin.trim() ? { gstin: vendorForm.gstin.trim().toUpperCase() } : {}),
+        ...(vendorForm.pan.trim() ? { pan: vendorForm.pan.trim().toUpperCase() } : {}),
+        ...(vendorForm.contactPerson.trim() ? { contactPerson: vendorForm.contactPerson.trim() } : {}),
+        email: vendorForm.email.trim(),
+        phone: vendorForm.phone.trim(),
+        address: vendorForm.address.trim(),
+        city: vendorForm.city.trim(),
+        state: vendorForm.state.trim(),
+        paymentTermsDays: parseInt(vendorForm.paymentTermsDays, 10) || 30,
+      };
+
+      const result = await dispatch(createVendor(payload)).unwrap();
+      setSelectedVendorId(result.id);
+      setVendorMatchId(result.id);
+      setIsQuickAddVendorOpen(false);
+    } catch (err) {
+      setVendorFormError(getApiErrorMessage(err, 'Failed to create vendor.'));
+    } finally {
+      setIsAddingVendor(false);
+    }
+  };
+
   useEffect(() => {
     // Vendor must be resolved by a human — auto-select ONLY the backend's
     // exact-GSTIN match as the default choice, never a blind vendors[0].
@@ -205,11 +316,11 @@ export const DocumentScannerView: React.FC<DocumentScannerViewProps> = ({ naviga
       if (proposal.duplicate) {
         setDuplicateNotice(
           `Possible duplicate: purchase bill ${proposal.duplicate.billNumber ?? proposal.duplicate.billId.slice(0, 8)} ` +
-            `already exists for vendor invoice "${proposal.duplicate.vendorInvoiceNumber}"` +
-            (proposal.duplicate.grandTotal != null
-              ? ` (₹${proposal.duplicate.grandTotal})`
-              : '') +
-            '.',
+          `already exists for vendor invoice "${proposal.duplicate.vendorInvoiceNumber}"` +
+          (proposal.duplicate.grandTotal != null
+            ? ` (₹${proposal.duplicate.grandTotal})`
+            : '') +
+          '.',
         );
       }
     } catch (error) {
@@ -245,22 +356,22 @@ export const DocumentScannerView: React.FC<DocumentScannerViewProps> = ({ naviga
     setReview((prev) =>
       prev
         ? {
-            ...prev,
-            items: [
-              ...prev.items,
-              {
-                description: '',
-                hsn: '',
-                quantity: 1,
-                unit: '',
-                unitPrice: 0,
-                discount: 0,
-                taxRate: 18,
-                taxableAmount: 0,
-                itcEligible: true,
-              },
-            ],
-          }
+          ...prev,
+          items: [
+            ...prev.items,
+            {
+              description: '',
+              hsn: '',
+              quantity: 1,
+              unit: '',
+              unitPrice: 0,
+              discount: 0,
+              taxRate: 18,
+              taxableAmount: 0,
+              itcEligible: true,
+            },
+          ],
+        }
         : prev,
     );
   };
@@ -332,9 +443,9 @@ export const DocumentScannerView: React.FC<DocumentScannerViewProps> = ({ naviga
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Upload Zone (Left 5 cols) */}
-        <div className="lg:col-span-5 space-y-4">
+      <div className="space-y-6">
+        {/* Upload Zone (Top, full width) */}
+        <div className="w-full space-y-4">
           <input
             type="file"
             onChange={handleFileInputChange}
@@ -358,11 +469,10 @@ export const DocumentScannerView: React.FC<DocumentScannerViewProps> = ({ naviga
               }
             }}
             onClick={() => document.getElementById('native-ocr-file-input')?.click()}
-            className={`border-2 border-dashed rounded-xs p-8 text-center cursor-pointer transition-colors bg-white ${
-              isDragging
+            className={`border-2 border-dashed rounded-xs p-8 text-center cursor-pointer transition-colors bg-white ${isDragging
                 ? 'border-slate-900 bg-slate-50'
                 : 'border-slate-300 hover:border-slate-900 hover:bg-slate-50/50'
-            }`}
+              }`}
           >
             <div className="w-12 h-12 bg-slate-100 border border-slate-200 text-slate-900 rounded-xs flex items-center justify-center mx-auto mb-3">
               <UploadCloud size={24} />
@@ -391,8 +501,8 @@ export const DocumentScannerView: React.FC<DocumentScannerViewProps> = ({ naviga
           )}
         </div>
 
-        {/* Extraction & Review Panel (Right 7 cols) */}
-        <div className="lg:col-span-7 bg-white border border-slate-200 p-6 rounded-xs flex flex-col justify-between">
+        {/* Extraction & Review Panel (Bottom, full width) */}
+        <div className="w-full bg-white border border-slate-200 p-6 rounded-xs flex flex-col justify-between">
           <div className="space-y-4">
             <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
               <div>
@@ -405,13 +515,12 @@ export const DocumentScannerView: React.FC<DocumentScannerViewProps> = ({ naviga
               </div>
               {review && (
                 <span
-                  className={`px-2 py-1 text-[10px] font-mono font-bold rounded-xs flex items-center gap-1 ${
-                    review.overallConfidence >= 0.8
+                  className={`px-2 py-1 text-[10px] font-mono font-bold rounded-xs flex items-center gap-1 ${review.overallConfidence >= 0.8
                       ? 'bg-emerald-100 text-emerald-900'
                       : review.overallConfidence >= 0.5
                         ? 'bg-amber-100 text-amber-900'
                         : 'bg-red-100 text-red-900'
-                  }`}
+                    }`}
                   title="Advisory score derived from field presence, format validity and arithmetic consistency. Not a guarantee."
                 >
                   <Info size={11} />
@@ -491,31 +600,58 @@ export const DocumentScannerView: React.FC<DocumentScannerViewProps> = ({ naviga
                 </div>
 
                 {/* Vendor assignment */}
-                <div className="bg-slate-50 border border-slate-200 p-4 rounded-xs space-y-2">
-                  <div className="text-[10px] font-sans font-bold text-slate-500 uppercase">Vendor (required)</div>
+                <div className="bg-slate-50 border border-slate-200 p-4 rounded-xs space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] font-sans font-bold text-slate-500 uppercase">
+                      Vendor (required)
+                    </div>
+                    <button
+                      type="button"
+                      onClick={openQuickAddVendor}
+                      id="quick-add-vendor-btn"
+                      className="text-[11px] font-mono font-semibold px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-900 border border-slate-300 rounded-xs flex items-center gap-1.5 transition-colors shadow-2xs"
+                    >
+                      <Plus size={12} />
+                      <span>Quick Add Vendor</span>
+                    </button>
+                  </div>
+
                   {vendorMatchId ? (
                     <div className="text-[11px] flex items-center gap-1.5 text-emerald-800">
                       <CheckCircle2 size={13} />
-                      Matched by GSTIN to your vendor master
+                      <span>Matched by GSTIN to your vendor master</span>
                     </div>
                   ) : (
-                    <div className="text-[11px] flex items-center gap-1.5 text-amber-800">
-                      <AlertTriangle size={13} />
-                      Vendor not found — select an existing vendor (or create one first)
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-xs">
+                      <div className="text-[11px] flex items-center gap-1.5 text-amber-900">
+                        <AlertTriangle size={13} className="shrink-0 text-amber-700" />
+                        <span>Vendor not found in database. Select an existing vendor or create one:</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={openQuickAddVendor}
+                        className="self-start sm:self-auto text-[11px] font-bold text-amber-900 underline hover:text-amber-950 font-sans cursor-pointer"
+                      >
+                        + Create "{review.supplierName || 'This Vendor'}"
+                      </button>
                     </div>
                   )}
-                  <select
-                    value={selectedVendorId}
-                    onChange={(e) => setSelectedVendorId(e.target.value)}
-                    className={inputCls}
-                  >
-                    <option value="">— Select vendor —</option>
-                    {vendors.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.name}{v.gstin ? ` (${v.gstin})` : ''}
-                      </option>
-                    ))}
-                  </select>
+
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={selectedVendorId}
+                      onChange={(e) => setSelectedVendorId(e.target.value)}
+                      className={`${inputCls} flex-1`}
+                      id="ocr-vendor-select"
+                    >
+                      <option value="">— Select vendor —</option>
+                      {vendors.map((v) => (
+                        <option key={v.id} value={v.id}>
+                          {v.name}{v.gstin ? ` (${v.gstin})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 {/* Invoice header */}
@@ -770,6 +906,186 @@ export const DocumentScannerView: React.FC<DocumentScannerViewProps> = ({ naviga
           )}
         </div>
       </div>
+
+      {/* Quick Add Vendor Modal */}
+      {isQuickAddVendorOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-300 rounded-xs shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-bold text-slate-950 tracking-tight">
+                  Quick Add Vendor / Supplier
+                </h3>
+                <p className="text-xs text-slate-500 font-mono mt-0.5">
+                  Pre-filled with scanned OCR invoice details
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsQuickAddVendorOpen(false)}
+                className="p-1 rounded-xs hover:bg-slate-100 text-slate-400 hover:text-slate-700"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleQuickAddVendorSubmit} className="p-6 space-y-4 text-xs font-sans">
+              {vendorFormError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-800 rounded-xs flex items-start gap-2">
+                  <AlertCircle size={14} className="mt-0.5 shrink-0" />
+                  <span>{vendorFormError}</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="sm:col-span-2">
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                    Vendor Legal Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={vendorForm.name}
+                    onChange={(e) => setVendorForm((prev) => ({ ...prev, name: e.target.value }))}
+                    placeholder="e.g. FAB TECH INDUSTRIES"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xs font-medium text-slate-900 focus:outline-none focus:border-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                    GSTIN
+                  </label>
+                  <input
+                    type="text"
+                    value={vendorForm.gstin}
+                    onChange={(e) => {
+                      const val = e.target.value.toUpperCase();
+                      const pan = val.length >= 12 ? val.slice(2, 12) : vendorForm.pan;
+                      setVendorForm((prev) => ({ ...prev, gstin: val, pan }));
+                    }}
+                    placeholder="27AABCA1234F1Z5"
+                    maxLength={15}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xs font-mono font-bold text-slate-900 uppercase focus:outline-none focus:border-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                    PAN
+                  </label>
+                  <input
+                    type="text"
+                    value={vendorForm.pan}
+                    onChange={(e) => setVendorForm((prev) => ({ ...prev, pan: e.target.value.toUpperCase() }))}
+                    placeholder="AABCA1234F"
+                    maxLength={10}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xs font-mono font-bold text-slate-900 uppercase focus:outline-none focus:border-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={vendorForm.email}
+                    onChange={(e) => setVendorForm((prev) => ({ ...prev, email: e.target.value }))}
+                    placeholder="accounts@vendor.com"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xs text-slate-900 focus:outline-none focus:border-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                    Phone *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={vendorForm.phone}
+                    onChange={(e) => setVendorForm((prev) => ({ ...prev, phone: e.target.value }))}
+                    placeholder="+91 9876543210"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xs text-slate-900 focus:outline-none focus:border-slate-900"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                    Billing Address *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={vendorForm.address}
+                    onChange={(e) => setVendorForm((prev) => ({ ...prev, address: e.target.value }))}
+                    placeholder="Gala No. 2, Lake Road, Bhandup"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xs text-slate-900 focus:outline-none focus:border-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                    City *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={vendorForm.city}
+                    onChange={(e) => setVendorForm((prev) => ({ ...prev, city: e.target.value }))}
+                    placeholder="Mumbai"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xs text-slate-900 focus:outline-none focus:border-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                    State *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={vendorForm.state}
+                    onChange={(e) => setVendorForm((prev) => ({ ...prev, state: e.target.value }))}
+                    placeholder="Maharashtra (27)"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xs text-slate-900 focus:outline-none focus:border-slate-900"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsQuickAddVendorOpen(false)}
+                  disabled={isAddingVendor}
+                  className="px-4 py-2 border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-xs text-xs font-medium cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isAddingVendor}
+                  className="px-5 py-2 bg-slate-950 hover:bg-slate-800 disabled:opacity-50 text-white rounded-xs text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  {isAddingVendor ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Saving Vendor...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={14} />
+                      <span>Save &amp; Link to Scanned Bill</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

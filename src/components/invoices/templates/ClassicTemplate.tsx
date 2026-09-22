@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { InvoiceFormData, InvoiceCalculations } from '../types';
 import { formatINR, formatDate } from '../../../utils/formatters';
 import { Building2, ShieldCheck, QrCode } from 'lucide-react';

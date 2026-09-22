@@ -111,11 +111,8 @@ export const TopNav: React.FC<TopNavProps> = ({
         return { title: 'Financial Reports', category: 'Accounting' };
       case '/ai-assistant':
         return { title: 'AI Accounting Assistant', category: 'Intelligence' };
-      // TODO:
-      // OCR / Document Ingestion is temporarily disabled.
-      // Preserve all implementation for future reactivation.
-      // case '/ai-assistant/documents':
-      //   return { title: 'AI Document Extraction (OCR)', category: 'Intelligence' };
+      case '/ai-assistant/documents':
+        return { title: 'AI Document Extraction (OCR)', category: 'Intelligence' };
       case '/review':
         return { title: 'AI Review Queue & Anomalies', category: 'Quality Control' };
       case '/insights':

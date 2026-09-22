@@ -49,6 +49,22 @@
   background: #A1A1AA;
 }
 
+.visible-table-scrollbar::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+.visible-table-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+.visible-table-scrollbar::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 3px;
+}
+.visible-table-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
 /* Professional Polish table styles */
 .polish-table th,
 .swiss-table th {

@@ -388,9 +388,6 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ navigate }) => {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* TODO:
-          OCR / Document Ingestion is temporarily disabled.
-          Preserve all implementation for future reactivation.
           <button
             onClick={() => {
               openBillModal();
@@ -401,7 +398,6 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ navigate }) => {
             <ScanLine size={14} className="text-slate-700" />
             <span>Bill Ingestion (OCR)</span>
           </button>
-          */}
           <button
             onClick={openPayModal}
             id="record-vendor-payment-btn"
@@ -503,13 +499,12 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ navigate }) => {
                       <td className="text-right font-mono font-bold text-slate-950 whitespace-nowrap">{formatINR(Number(vp.amount))}</td>
                       <td className="text-center whitespace-nowrap">
                         <span
-                          className={`px-2 py-0.5 text-[10px] font-mono rounded-xs font-semibold ${
-                            vp.status === VendorPaymentStatus.POSTED
+                          className={`px-2 py-0.5 text-[10px] font-mono rounded-xs font-semibold ${vp.status === VendorPaymentStatus.POSTED
                               ? 'bg-emerald-100 text-emerald-900'
                               : vp.status === VendorPaymentStatus.VOIDED
-                              ? 'bg-red-100 text-red-900'
-                              : 'bg-slate-100 text-slate-700'
-                          }`}
+                                ? 'bg-red-100 text-red-900'
+                                : 'bg-slate-100 text-slate-700'
+                            }`}
                         >
                           {vp.status}
                         </span>
@@ -590,11 +585,10 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ navigate }) => {
             <button
               key={tab}
               onClick={() => setStatusFilter(tab)}
-              className={`px-3 py-1.5 text-xs font-mono rounded-xs transition-colors whitespace-nowrap ${
-                statusFilter === tab
+              className={`px-3 py-1.5 text-xs font-mono rounded-xs transition-colors whitespace-nowrap ${statusFilter === tab
                   ? 'bg-slate-900 text-white font-bold'
                   : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100'
-              }`}
+                }`}
             >
               {tab}
             </button>
@@ -728,11 +722,10 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ navigate }) => {
                       </td>
                       <td className="text-center whitespace-nowrap">
                         <span
-                          className={`px-1.5 py-0.5 text-[10px] font-mono rounded-xs font-semibold ${
-                            b.itcEligible
+                          className={`px-1.5 py-0.5 text-[10px] font-mono rounded-xs font-semibold ${b.itcEligible
                               ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                               : 'bg-slate-100 text-slate-500'
-                          }`}
+                            }`}
                         >
                           {b.itcEligible ? 'ITC Eligible' : 'Ineligible'}
                         </span>

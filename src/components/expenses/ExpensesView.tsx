@@ -151,8 +151,8 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({ navigate }) => {
 
   const selectedExpense: Expense | null = selectedExpenseId
     ? (expensesState.selected && expensesState.selected.id === selectedExpenseId
-        ? expensesState.selected
-        : expensesState.items.find((e) => e.id === selectedExpenseId) ?? null)
+      ? expensesState.selected
+      : expensesState.items.find((e) => e.id === selectedExpenseId) ?? null)
     : null;
 
   // ── Derived metrics (server-computed totals; the frontend never recomputes
@@ -649,8 +649,8 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({ navigate }) => {
                   >
                     {(categoriesState.listStatus === 'loading' ||
                       (categoriesState.listStatus === 'idle' && categoryOptions.length === 0)) && (
-                      <option value="">Loading categories…</option>
-                    )}
+                        <option value="">Loading categories…</option>
+                      )}
                     {categoriesState.listStatus === 'failed' && (
                       <option value="">Unable to load categories</option>
                     )}

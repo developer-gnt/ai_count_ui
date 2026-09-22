@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Plus,
   Search,
@@ -12,7 +12,9 @@ import {
   ShieldCheck,
   FileText,
   Wallet,
-  Loader2
+  Loader2,
+  UserPlus,
+  Building2,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
@@ -215,40 +217,29 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
-        inv.invoiceNumber.toLowerCase().includes(q) ||
-        inv.customerName.toLowerCase().includes(q) ||
-        inv.customerGstin.toLowerCase().includes(q)
+        (inv.invoiceNumber || '').toLowerCase().includes(q) ||
+        (inv.customerName || '').toLowerCase().includes(q) ||
+        (inv.customerGstin || '').toLowerCase().includes(q)
       );
     }
     return true;
   });
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto w-full space-y-3 pb-3">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-slate-200 p-6 rounded-xs">
-        <div>
-          <h1 className="text-xl font-bold text-slate-950 tracking-tight">
-            Sales & Invoicing Workspace
-          </h1>
-          <p className="text-xs text-slate-500 font-mono mt-1">
-            Generate GST-compliant tax invoices, track credit terms, and manage receivables
-          </p>
-        </div>
-
-        <button
-          onClick={() => navigate('/sales/create-invoice')}
-          id="create-invoice-btn"
-          className="bg-slate-950 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-xs flex items-center gap-2 transition-colors shadow-xs"
-        >
-          <Plus size={14} />
-          <span>Generate Tax Invoice</span>
-        </button>
+      <div className="bg-white border border-slate-200 px-4 py-3 sm:px-5 sm:py-3.5 rounded-xs shadow-2xs">
+        <h1 className="text-lg font-bold text-slate-950 tracking-tight">
+          Sales &amp; Invoicing Workspace
+        </h1>
+        <p className="text-[11px] text-slate-500 font-mono mt-0.5">
+          Generate GST-compliant tax invoices, track credit terms, and manage receivables
+        </p>
       </div>
 
       {/* Sync error / loading banners */}
       {invoicesState.status === 'failed' && (
-        <div className="bg-red-50 border border-red-200 text-red-800 rounded-xs px-4 py-3 flex items-center justify-between gap-3 text-xs">
+        <div className="bg-red-50 border border-red-200 text-red-800 rounded-xs px-3.5 py-2 flex items-center justify-between gap-3 text-xs font-mono">
           <span className="flex items-center gap-2">
             <AlertCircle size={14} />
             Invoice sync error: {getApiErrorMessage(invoicesState.error, 'Could not load invoices.')}
@@ -262,73 +253,73 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
         </div>
       )}
       {invoicesState.status === 'loading' && invoices.length === 0 && (
-        <div className="bg-slate-50 border border-slate-200 text-slate-600 rounded-xs px-4 py-3 text-xs font-mono flex items-center gap-2">
+        <div className="bg-slate-50 border border-slate-200 text-slate-600 rounded-xs px-3.5 py-2 text-xs font-mono flex items-center gap-2">
           <Loader2 size={14} className="animate-spin" />
           Loading invoices from ledger...
         </div>
       )}
 
       {/* Sales Metric Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-slate-200 p-4 rounded-xs">
-          <div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-500">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="bg-white border border-slate-200 px-3.5 py-2.5 rounded-xs shadow-2xs">
+          <div className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-500">
             Total Invoiced
           </div>
-          <div className="text-xl font-bold font-mono text-slate-950 mt-1.5">
+          <div className="text-lg font-bold font-mono text-slate-950 mt-0.5">
             {formatINR(totalSales, false)}
           </div>
-          <div className="mt-1 text-[10px] font-mono text-slate-500">
+          <div className="mt-0.5 text-[10px] font-mono text-slate-500">
             {billable.length} invoices generated
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 p-4 rounded-xs">
-          <div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-500">
+        <div className="bg-white border border-slate-200 px-3.5 py-2.5 rounded-xs shadow-2xs">
+          <div className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-500">
             Outstanding Balance
           </div>
-          <div className="text-xl font-bold font-mono text-slate-950 mt-1.5">
+          <div className="text-lg font-bold font-mono text-slate-950 mt-0.5">
             {formatINR(outstandingSales, false)}
           </div>
-          <div className="mt-1 text-[10px] font-mono text-amber-700 font-medium">
-            Finalized & awaiting settlement
+          <div className="mt-0.5 text-[10px] font-mono text-amber-700 font-medium">
+            Finalized &amp; awaiting settlement
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 p-4 rounded-xs">
-          <div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-500">
-            Paid & Settled
+        <div className="bg-white border border-slate-200 px-3.5 py-2.5 rounded-xs shadow-2xs">
+          <div className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-500">
+            Paid &amp; Settled
           </div>
-          <div className="text-xl font-bold font-mono text-emerald-700 mt-1.5">
+          <div className="text-lg font-bold font-mono text-emerald-700 mt-0.5">
             {formatINR(paidSales, false)}
           </div>
-          <div className="mt-1 text-[10px] font-mono text-emerald-700">
+          <div className="mt-0.5 text-[10px] font-mono text-emerald-700">
             Payments recorded against invoices
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 p-4 rounded-xs">
-          <div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-500">
+        <div className="bg-white border border-slate-200 px-3.5 py-2.5 rounded-xs shadow-2xs">
+          <div className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-500">
             Overdue Receivables
           </div>
-          <div className="text-xl font-bold font-mono text-red-700 mt-1.5">
+          <div className="text-lg font-bold font-mono text-red-700 mt-0.5">
             {formatINR(overdueSales, false)}
           </div>
-          <div className="mt-1 text-[10px] font-mono text-red-700 font-bold">
+          <div className="mt-0.5 text-[10px] font-mono text-red-700 font-bold">
             Past due date, unpaid
           </div>
         </div>
       </div>
 
       {/* Filter Tabs & Search */}
-      <div className="bg-white border border-slate-200 rounded-xs p-4 space-y-4">
-        <div className="flex items-center gap-1 border-b border-slate-200 pb-3 overflow-x-auto">
+      <div className="bg-white border border-slate-200 rounded-xs p-3 space-y-2.5 shadow-2xs">
+        <div className="flex items-center gap-1 border-b border-slate-100 pb-2 overflow-x-auto">
           {Object.keys(STATUS_TAB_TO_API).map((tab) => (
             <button
               key={tab}
               onClick={() => setStatusFilter(tab)}
-              className={`px-3 py-1.5 text-xs font-mono rounded-xs transition-colors whitespace-nowrap ${
+              className={`px-2.5 py-1 text-xs font-mono rounded-xs transition-colors whitespace-nowrap ${
                 statusFilter === tab
-                  ? 'bg-slate-900 text-white font-bold'
+                  ? 'bg-slate-900 text-white font-bold shadow-2xs'
                   : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100'
               }`}
             >
@@ -337,44 +328,44 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
           ))}
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div className="flex-1 relative max-w-md">
-            <Search size={15} className="absolute left-3 top-2.5 text-slate-400" />
+            <Search size={14} className="absolute left-2.5 top-2 text-slate-400" />
             <input
               type="text"
               placeholder="Search invoice number, client name, GSTIN..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs border border-slate-300 rounded-xs focus:outline-none focus:border-slate-900"
+              className="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-xs focus:outline-none focus:border-slate-900"
             />
           </div>
-          <div className="text-xs text-slate-500 font-mono">
+          <div className="text-[11px] text-slate-500 font-mono">
             Showing {filteredInvoices.length} invoices
           </div>
         </div>
       </div>
 
-      {/* Invoices Table */}
-      <div className="bg-white border border-slate-200 rounded-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left swiss-table border-collapse">
-            <thead>
+      {/* Scrollable Invoices Table with Visible Vertical Scrollbar */}
+      <div className="bg-white border border-slate-200 rounded-xs overflow-hidden shadow-2xs">
+        <div className="overflow-x-auto max-h-[175px] sm:max-h-[195px] overflow-y-scroll visible-table-scrollbar">
+          <table className="w-full text-left swiss-table border-collapse text-xs">
+            <thead className="sticky top-0 bg-slate-100 z-10 shadow-2xs border-b border-slate-200">
               <tr>
-                <th className="w-32">Invoice No</th>
-                <th>Customer & GSTIN</th>
-                <th className="w-24">Date</th>
-                <th className="w-24">Due Date</th>
-                <th className="text-right w-28">Taxable Amt</th>
-                <th className="text-right w-24">GST</th>
-                <th className="text-right w-32">Total Amount</th>
-                <th className="text-center w-28">Status</th>
-                <th className="text-right w-20">Actions</th>
+                <th className="w-32 py-2">Invoice No</th>
+                <th className="py-2">Customer &amp; GSTIN</th>
+                <th className="w-24 py-2">Date</th>
+                <th className="w-24 py-2">Due Date</th>
+                <th className="text-right w-28 py-2">Taxable Amt</th>
+                <th className="text-right w-24 py-2">GST</th>
+                <th className="text-right w-32 py-2">Total Amount</th>
+                <th className="text-center w-28 py-2">Status</th>
+                <th className="text-right w-16 py-2"></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100">
               {filteredInvoices.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-12 text-center text-slate-400 text-xs font-mono">
+                  <td colSpan={9} className="py-8 text-center text-slate-400 text-xs font-mono">
                     No invoices found matching criteria.
                   </td>
                 </tr>
@@ -385,31 +376,31 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
                     onClick={() => setSelectedInvoiceId(inv.id)}
                     className="cursor-pointer hover:bg-slate-50 transition-colors"
                   >
-                    <td className="font-mono font-bold text-slate-900 whitespace-nowrap">
+                    <td className="font-mono font-bold text-slate-900 whitespace-nowrap py-2">
                       {inv.invoiceNumber}
                     </td>
-                    <td className="text-xs">
-                      <div className="font-semibold text-slate-900">{inv.customerName}</div>
+                    <td className="text-xs py-2">
+                      <div className="font-semibold text-slate-900 leading-tight">{inv.customerName}</div>
                       <div className="text-[10px] text-slate-400 font-mono">
                         GSTIN: {inv.customerGstin || 'UNREGISTERED'}
                       </div>
                     </td>
-                    <td className="font-mono text-slate-600 whitespace-nowrap text-xs">
+                    <td className="font-mono text-slate-600 whitespace-nowrap text-xs py-2">
                       {formatDate(inv.date)}
                     </td>
-                    <td className="font-mono text-slate-600 whitespace-nowrap text-xs">
+                    <td className="font-mono text-slate-600 whitespace-nowrap text-xs py-2">
                       {formatDate(inv.dueDate)}
                     </td>
-                    <td className="text-right font-mono text-slate-700 whitespace-nowrap">
+                    <td className="text-right font-mono text-slate-700 whitespace-nowrap py-2">
                       {formatINR(inv.taxableAmount)}
                     </td>
-                    <td className="text-right font-mono text-slate-600 whitespace-nowrap text-xs">
+                    <td className="text-right font-mono text-slate-600 whitespace-nowrap text-xs py-2">
                       {formatINR(inv.cgst + inv.sgst + inv.igst)}
                     </td>
-                    <td className="text-right font-mono font-bold text-slate-950 whitespace-nowrap">
+                    <td className="text-right font-mono font-bold text-slate-950 whitespace-nowrap py-2">
                       {formatINR(inv.totalAmount)}
                     </td>
-                    <td className="text-center whitespace-nowrap">
+                    <td className="text-center whitespace-nowrap py-2">
                       <span
                         className={`px-2 py-0.5 text-[10px] font-mono rounded-xs font-semibold ${
                           inv.status === 'Paid'
@@ -424,13 +415,13 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
                         {inv.status === 'Sent' && isOverdue(inv) ? 'Overdue' : inv.status}
                       </span>
                     </td>
-                    <td className="text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                    <td className="text-right whitespace-nowrap py-2" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => setSelectedInvoiceId(inv.id)}
-                        className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-xs"
+                        className="p-1 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-xs"
                         title="View / Print Tax Invoice"
                       >
-                        <Eye size={14} />
+                        <Eye size={13} />
                       </button>
                     </td>
                   </tr>
@@ -439,6 +430,41 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Centered Bottom Action Buttons */}
+      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+        <button
+          type="button"
+          onClick={() => navigate('/customers')}
+          id="bottom-add-customer-btn"
+          className="bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-xs font-mono font-semibold px-4 py-2 rounded-xs flex items-center gap-2 transition-colors shadow-2xs"
+          title="Navigate to Customers"
+        >
+          <UserPlus size={14} className="text-slate-600" />
+          <span>Add Customer</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => navigate('/vendors')}
+          id="bottom-add-vendor-btn"
+          className="bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-xs font-mono font-semibold px-4 py-2 rounded-xs flex items-center gap-2 transition-colors shadow-2xs"
+          title="Navigate to Vendors"
+        >
+          <Building2 size={14} className="text-slate-600" />
+          <span>Add Vendor</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => navigate('/sales/create-invoice')}
+          id="bottom-create-invoice-btn"
+          className="bg-slate-950 hover:bg-slate-850 text-white text-xs font-mono font-semibold px-5 py-2 rounded-xs flex items-center gap-2 transition-colors shadow-xs"
+        >
+          <Plus size={14} />
+          <span>Generate Tax Invoice</span>
+        </button>
       </div>
 
       {/* RECORD PAYMENT MODAL (create + post via dispatch) */}
@@ -663,11 +689,10 @@ export const SalesView: React.FC<SalesViewProps> = ({ navigate }) => {
                         key={tpl.id}
                         type="button"
                         onClick={() => setDrawerTemplateId(tpl.id)}
-                        className={`px-2 py-0.5 text-[10px] font-mono rounded-xs transition-colors ${
-                          drawerTemplateId === tpl.id
+                        className={`px-2 py-0.5 text-[10px] font-mono rounded-xs transition-colors ${drawerTemplateId === tpl.id
                             ? 'bg-neutral-900 text-white font-bold'
                             : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
-                        }`}
+                          }`}
                       >
                         {tpl.name.split(' ')[0]}
                       </button>

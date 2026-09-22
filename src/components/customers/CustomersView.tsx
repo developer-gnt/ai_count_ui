@@ -192,10 +192,10 @@ export const CustomersView: React.FC<CustomersViewProps> = ({ navigate }) => {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
-        c.name.toLowerCase().includes(q) ||
+        (c.name || '').toLowerCase().includes(q) ||
         (c.gstin ?? '').toLowerCase().includes(q) ||
-        c.email.toLowerCase().includes(q) ||
-        c.city.toLowerCase().includes(q)
+        (c.email || '').toLowerCase().includes(q) ||
+        (c.city || '').toLowerCase().includes(q)
       );
     }
     return true;

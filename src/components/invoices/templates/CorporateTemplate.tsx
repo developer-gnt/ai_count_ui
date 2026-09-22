@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { InvoiceFormData, InvoiceCalculations } from '../types';
 import { formatINR, formatDate } from '../../../utils/formatters';
 import { Award, CheckCheck, Landmark } from 'lucide-react';
