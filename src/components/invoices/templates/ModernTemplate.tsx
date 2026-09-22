@@ -18,9 +18,11 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, calculations }) 
         {/* Modern Charcoal Header Bar */}
         <div className="bg-neutral-950 text-white p-6 rounded-xs mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white text-neutral-950 font-mono font-bold text-base flex items-center justify-center rounded-xs shadow-xs">
-              AI
-            </div>
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="w-10 h-10 object-contain rounded-xs bg-white p-0.5 shadow-xs shrink-0"
+            />
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-bold text-lg tracking-tight uppercase">

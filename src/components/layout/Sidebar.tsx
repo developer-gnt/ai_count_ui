@@ -130,17 +130,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => handleNavClick('/dashboard')}
             className="flex items-center gap-2.5 text-left focus:outline-none min-w-0"
           >
-            <div className="w-8 h-8 bg-neutral-900 text-white flex items-center justify-center font-bold text-xs tracking-tighter shrink-0">
-              AI
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-sm font-bold tracking-tight uppercase text-neutral-900 truncate">
-                AICounts
-              </h1>
-              <div className="text-[8.5px] text-neutral-500 font-mono tracking-tight uppercase whitespace-nowrap">
-                SMART ACCOUNTING, SIMPLIFIED
-              </div>
-            </div>
+            <img
+              src="/logo.png"
+              alt="AICounts"
+              className="h-9 w-auto object-contain shrink-0"
+            />
           </button>
 
           <button
@@ -198,7 +192,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         />
                         <span className="truncate flex-1">{item.label}</span>
                         {item.count !== undefined && (
-                          <span className="ml-2 text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full font-bold">
+                          <span className="px-1.5 py-0.5 bg-neutral-900 text-white text-[10px] font-mono rounded-full font-bold">
                             {item.count}
                           </span>
                         )}
@@ -236,7 +230,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* ─── DESKTOP SIDEBAR (>= lg) ─── */}
       <aside
-        id="app-sidebar"
+        id="desktop-sidebar"
         className={`hidden lg:flex fixed top-0 left-0 h-screen bg-white text-neutral-900 border-r border-neutral-200 flex-col z-30 transition-[width] duration-300 ease-in-out motion-reduce:transition-none select-none ${
           collapsed ? 'w-16' : 'w-64'
         }`}
@@ -254,17 +248,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className="flex items-center gap-2.5 text-left focus:outline-none group min-w-0 transition-opacity duration-200"
                 id="brand-logo-btn"
               >
-                <div className="w-8 h-8 bg-neutral-900 text-white flex items-center justify-center font-bold text-xs tracking-tighter shrink-0 font-mono">
-                  AI
-                </div>
-                <div className="min-w-0 overflow-hidden">
-                  <h1 className="text-sm font-bold tracking-tight uppercase text-neutral-900 truncate">
-                    AICounts
-                  </h1>
-                  <div className="text-[8px] sm:text-[8.5px] text-neutral-500 font-mono tracking-tight uppercase whitespace-nowrap">
-                    SMART ACCOUNTING, SIMPLIFIED
-                  </div>
-                </div>
+                <img
+                  src="/logo.png"
+                  alt="AICounts"
+                  className="h-9 w-auto object-contain shrink-0"
+                />
               </button>
 
               <button
@@ -280,11 +268,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <>
               <button
                 onClick={() => navigate('/dashboard')}
-                className="w-8 h-8 bg-neutral-900 text-white flex items-center justify-center font-bold text-xs shrink-0 hover:bg-neutral-800 transition-colors focus:outline-none font-mono"
+                className="w-10 h-10 flex items-center justify-center shrink-0 hover:opacity-85 transition-opacity focus:outline-none p-1"
                 id="brand-logo-btn-collapsed"
                 title="AICounts — Dashboard"
               >
-                AI
+                <img
+                  src="/logo.png"
+                  alt="AICounts"
+                  className="w-8 h-8 object-contain"
+                />
               </button>
 
               <button

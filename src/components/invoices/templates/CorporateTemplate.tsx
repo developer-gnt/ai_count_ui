@@ -18,9 +18,11 @@ export const CorporateTemplate: React.FC<TemplateProps> = ({ data, calculations 
         {/* Executive Header Banner */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b-2 border-neutral-900 gap-4 mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-neutral-900 text-white font-mono font-bold text-lg flex items-center justify-center rounded-xs shadow-xs">
-              AI
-            </div>
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="w-12 h-12 object-contain rounded-xs shadow-xs shrink-0"
+            />
             <div>
               <h1 className="text-xl font-bold text-neutral-950 uppercase tracking-tight">
                 {business.name || 'ACME INDUSTRIES PVT LTD'}

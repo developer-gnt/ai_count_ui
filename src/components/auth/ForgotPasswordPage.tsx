@@ -36,17 +36,16 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ navigate
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col justify-between py-12 px-6">
       {/* Brand Header */}
-      <div className="max-w-md mx-auto w-full text-center">
+      <div className="max-w-md mx-auto w-full text-center mb-6">
         <button
           onClick={() => navigate('/')}
-          className="inline-flex items-center gap-2.5 mb-6 group focus:outline-none"
+          className="inline-flex items-center justify-center focus:outline-none"
         >
-          <div className="w-8 h-8 bg-slate-900 text-white flex items-center justify-center font-bold text-sm tracking-tighter rounded-xs font-mono">
-            AI
-          </div>
-          <span className="text-sm font-bold tracking-widest text-slate-900 uppercase">
-            AICOUNTS
-          </span>
+          <img
+            src="/logo.png"
+            alt="AICounts"
+            className="h-14 w-auto object-contain mx-auto"
+          />
         </button>
       </div>
 

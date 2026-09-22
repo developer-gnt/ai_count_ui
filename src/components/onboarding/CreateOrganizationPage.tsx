@@ -223,15 +223,17 @@ export const CreateOrganizationPage: React.FC<CreateOrganizationPageProps> = ({ 
       {/* Header Bar */}
       <div className="max-w-3xl mx-auto w-full flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-neutral-900 text-white flex items-center justify-center font-bold text-xs tracking-wider rounded-xs font-mono">
-            AI
-          </div>
-          <div>
-            <div className="text-xs font-bold tracking-widest text-neutral-900 uppercase">
-              AICOUNTS
+          <img
+            src="/logo.png"
+            alt="AICounts"
+            className="h-10 w-auto object-contain shrink-0"
+          />
+          <div className="border-l border-neutral-300 pl-3">
+            <div className="text-[11px] font-bold tracking-wider text-neutral-900 uppercase font-mono">
+              Enterprise Multi-Tenant
             </div>
             <div className="text-[10px] text-neutral-500 font-mono">
-              Enterprise Multi-Tenant Registration
+              Business Registration &amp; Setup
             </div>
           </div>
         </div>

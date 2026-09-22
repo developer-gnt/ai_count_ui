@@ -28,9 +28,11 @@ export const ClassicTemplate: React.FC<TemplateProps> = ({ data, calculations })
           {/* Supplier Info */}
           <div className="p-3 bg-neutral-50/50">
             <div className="flex items-start gap-2 mb-1">
-              <div className="w-7 h-7 bg-neutral-900 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0">
-                AI
-              </div>
+              <img
+                src="/logo.png"
+                alt="Logo"
+                className="w-8 h-8 object-contain shrink-0"
+              />
               <div>
                 <h1 className="font-bold text-sm text-neutral-950 uppercase tracking-tight">
                   {business.name || 'ACME INDUSTRIES PVT LTD'}
